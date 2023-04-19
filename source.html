@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=600px, user-scalable=yes">
+  <title>Симулятор эпидемии - редактор исходного кода</title>
+  <link rel="icon" href="assets/icon.svg">
+</head>
+<body>
+  <header>
+    <b style="font-family: Monospace, sans-serif; font-size: 24px;">Редактор исходного кода</b>
+  </header>
+  <div style="padding-top: 10px; margin-bottom: 10px;">
+    <button onclick="play();" style="font-family: sans-serif, Monospace;">запуск</button>
+    <button onclick="download();" style="font-family: sans-serif, Monospace;">скачать</button>
+    <p style="font-family: Monospace, sans-serif; font-size: 12px;">открыть: </p>
+    <input type="file" onchange="opengame(this.files[0]);">
+  </div>
+  <div><textarea id="source" style="font-family: Monaco, sans-serif; font-size: 12px; resize: none; width: 500px; height: 200px;">
+{
+  "name": "без имени",
+  "states": [
+    { "color": "#00a000", "name": "здоровые", "hiddengraph": true }
+  ], 
+  "options": {
+    "count": 1000,
+    "size": 420,
+    "speed": 7,
+    "music": true
+  },
+  "style": {
+    "size": 5, 
+    "sort": true, 
+    "dots": { "color": "ill", "size": 2, "transparent": true },
+    "deadanim": true, 
+    "chanim": true,
+    "anim": true
+  }
+}
+</textarea></div>
+</body>
+</html>
+<script src="source.js"></script>

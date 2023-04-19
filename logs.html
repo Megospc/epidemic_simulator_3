@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=600px, user-scalable=yes">
+  <title>Симулятор эпидемии - просмотр логов</title>
+  <link rel="icon" href="assets/icon.svg">
+</head>
+<body>
+  <header style="margin-bottom: 10px;">
+    <b style="font-family: Monospace, sans-serif; font-size: 24px;">Просмотр логов</b>
+  </header>
+  <textarea id="logs" style="font-family: Monaco, sans-serif; font-size: 12px; width: 500px; height: 250px; resize: none; display: none;" readonly></textarea>
+  <input id="file" type="file" onchange="read(this.files[0]);" style="display: none;">
+  <div id="div" style="padding-top: 10px; margin-bottom: 10px; display: none;">
+    <div>
+      <button onclick="download();" style="font-family: sans-serif, Monospace;">скачать</button>
+      <button onclick="sessionStorage.setItem('epidemic_simulator_logs', ''); window.location.reload(); return false;" style="font-family: sans-serif, Monospace;">открыть</button>
+    </div>
+    <div style="padding-top: 10px;" id="parser">
+      <header>
+        <b style="font-family: Monospace, sans-serif; font-size: 18px;">Результат парсера:</b>
+      </header>
+      <div id="resultdiv" style="padding-top: 10px;">
+        <textarea id="result" style="font-family: Monaco, sans-serif; font-size: 12px; width: 500px; height: 250px; resize: none;" readonly></textarea>
+        <div id="parsed" style="display: none;">
+          <canvas id="graph0" width="500" height="250" style="width: 250px; height: 125px;"></canvas>
+          <canvas id="graph1" width="500" height="250" style="width: 250px; height: 125px;"></canvas>
+          <canvas id="graph2" width="500" height="250" style="width: 250px; height: 125px;"></canvas>
+          <canvas id="legend" width="500" height="250" style="width: 250px; height: 125px;"></canvas>
+          <div style="padding-top: 10px;"><button onclick="edit();" style="font-family: sans-serif, Monospace;">редактировать</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+<script src="logs.js"></script>
