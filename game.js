@@ -1,4 +1,4 @@
-const version = "3.1.0"; //версия программы
+const version = "3.1.5"; //версия программы
 const fps = 30; //количество кадров в игровой секунде
 const lands = [ //массив цветов ландшафтов
   "#ffffff",
@@ -377,10 +377,8 @@ e.pow && rnd() >= arr[i].st.antievent) {
   }
 };
 event.gravitation = function(e) { //событие "гравитация"
-  if (e.pow) {
-    vib(50);
-    gravitation = { x: e.x, y: e.y };
-  }
+  vib(50);
+  gravitation = { x: e.x, y: e.y };
 };
 event.epidemic = function(e) { //событие "эпидемия"
   if (e.pow) {
