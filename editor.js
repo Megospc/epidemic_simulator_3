@@ -15,7 +15,8 @@ const lands = [
   { color: "#5000a0", bcolor: "#400090", name: "магическая зона" },
   { color: "#a05000", bcolor: "#a04000", name: "зона строгого конроля" },
   { color: "#a07800", bcolor: "#907000", name: "человеческая зона" },
-  { color: "#0060a0", bcolor: "#005090", name: "научная зона" }
+  { color: "#0060a0", bcolor: "#005090", name: "научная зона" },
+  { color: "#60c0d0", bcolor: "#50b0c0", name: "леденая зона" }
 ];
 const eventlist = [
   { name: "большой взмес", width: 340, id: "teleporto", props: [] },
@@ -26,15 +27,19 @@ const eventlist = [
     { id: "pow", text: "сила:", check: [0, 100, false], form: "${num}/100", aform: "${num}*100" },
     { id: "state", text: "состояние:", check: [0, 'states.length', true], form: "${num}-1", aform: "${num}+1" }
   ] },
-  { name: "крысиные всплеск", width: 450, id: "rats", props: [
+  { name: "крысиный всплеск", width: 450, id: "rats", props: [
     { id: "pow", text: "сила:", check: [0, 100, false], form: "${num}/100", aform: "${num}*100" }
+  ] },
+  { name: "смена гравитации", width: 500, id: "gravitation", props: [
+    { id: "x", text: "X:", check: [-5, 5, false], form: "${num}", aform: "${num}" },
+    { id: "y", text: "Y:", check: [-5, 5, false], form: "${num}", aform: "${num}" }
   ] },
 ];
 const props = [
   { title: "Коэффициент скорости:", type: "num", id: "speed", check: [0, 3, false], default: 1, form: "${num}", aform: "${num}" },
   { title: "Вероятность излечения(%):", type: "num", id: "heal", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Трансформация в (0 = случайное):", type: "num", id: "transform", check: [0, 'states.length', true], default: 1, form: "${num}-1", aform: "${num}+1" },
-  { title: "Заражение в (0 = себя):", type: "num", id: "infect", check: [0, 'states.length', true], default: 0, form: "${num}", aform: "${num}" },
+  { title: "Трансформация в:", type: "sel", id: "transform", select: "arr = ['случайное']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}-1", aform: "${num}+1" },
+  { title: "Заражение в:", type: "sel", id: "infect", select: "arr = ['себя']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}", aform: "${num}" },
   { title: "Паразит (0 = без паразита):", type: "num", id: "parasite", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000" },
   { title: "Инфекция после смерти(с):", type: "num", id: "after", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000" },
   { title: "Переатака(%):", type: "num", id: "attacktrans", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
@@ -54,12 +59,14 @@ const props = [
   { title: "Контратака(%):", type: "num", id: "cattack", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
   { title: "Дальняя атака(шт.):", type: "num", id: "farinf", check: [0, 5, true], default: 0, form: "${num}", aform: "${num}" },
   { title: "Сумасшедший(‰):", type: "num", id: "crazy", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Крысы(шт.):", type: "num", id: "ratinit", check: [0, 'options.ratcount', true], default: 0, form: "${num}", aform: "${num}", firstno: true },
+  { title: "Крысы(шт.):", type: "num", id: "ratinit", check: [0, 'options.ratcount-ratsum(n) ', true], default: 0, form: "${num}", aform: "${num}", firstno: true },
+  { title: "Шары(шт.):", type: "num", id: "ballinit", check: [0, 'options.ballinit-ballsum(n)', true], default: 0, form: "${num}", aform: "${num}", firstno: true },
   { title: "Воскрешение время(с.):", type: "num", id: "relivetime", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000" },
   { title: "Воскрешение вероятность(%):", type: "num", id: "reliveprob", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
   { title: "Группа:", type: "num", id: "group", check: [0, 'states.length', true], default: 0, form: "${num}", aform: "${num}" },
   { title: "Уязвимость(%):", type: "num", id: "defect", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
   { title: "Остановка(%):", type: "num", id: "stopping", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
+  { title: "Ядовитое(%):", type: "num", id: "potion", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
   { title: "Грабитель", type: "chk", id: "robber", default: false },
   { title: "Все за одного", type: "chk", id: "allone", default: false },
   { title: "Невидимка", type: "chk", id: "invisible", default: false },
@@ -90,7 +97,10 @@ var options = {
   ratcount: 0,
   ratspeed: 7,
   healto: 0,
-  vibrate: false
+  vibrate: false,
+  grav: { x: 0, y: 3 },
+  ballcount: 0,
+  balljump: 0.8
 };
 var openedadd = [];
 var openedaddopt = false;
@@ -153,7 +163,7 @@ function newevent() {
   let i = events.length;
   let n = lastev;
   lastev++;
-  let sel = `<select id="event${n}type" onchange="updateEvents();">`;
+  let sel = `<select id="event${n}type" class="evselect" onchange="updateEvents();">`;
   for (let j = 0; j < eventlist.length; j++) sel += `<option value="${j}">${eventlist[j].name}</option>`;
   sel += "</select>";
   div.id = `event${events.length}`;
@@ -257,7 +267,8 @@ function createJSON(space) {
       mosquitosize: 2,
       biggraph: options.biggraph,
       graphmove: options.graphmove,
-      ratsize: 5
+      ratsize: 5,
+      ballsize: 5
     }
   };
   for (let i = 0; i < states.length; i++) {
@@ -273,7 +284,7 @@ function createJSON(space) {
     delete o.num;
     obj.events.push(o);
   }
-  return JSON.stringify(obj, null, space ?? 0);
+  return JSON.stringify(obj, null, space);
 }
 function newState(name, color) {
   let num = lastnum;
@@ -286,6 +297,14 @@ function newState(name, color) {
       <input type="number" id="${p.id+num}" onchange="updateStates();" value="${p.default}" ${p.deflaut ? "checked":""}></div>`;
       if (p.type == "chk") add += `<div><input type="checkbox" id="${p.id+num}" onchange="updateStates();">
       <label for="${p.id+num}" class="label">${p.title}</label></div>`;
+      if (p.type == "sel") {
+    	let arr;
+        eval(p.select);
+    	add += `<div><label for="${p.id+num}" class="label">${p.title}</label>
+        <select id="${p.id+num}" class="pselect" onchange="updateStates();">`;
+        for (let j = 0; j < arr.length; j++) add += `<option value="${j}">${arr[j]}</option>`;
+        add += "</select></div>";
+      }
     }
   }  
   div.innerHTML = `
@@ -389,10 +408,21 @@ function updateState(n) {
   for (let j = 0; j < props.length; j++) {
     let p = props[j];
     if (!p.firstno || n != 0) {
-      if (p.type == "num") checknum($(`${p.id+i}`), eval(p.check[0]), eval(p.check[1]), eval(p.check[2]));
-      let num = Number($(`${p.id+i}`).value);
+      if (p.type == "num") checknum($(p.id+i), eval(p.check[0]), eval(p.check[1]), eval(p.check[2]));
+      let num = Number($(p.id+i).value);
       if (p.type == "num") obj[p.id] = eval(`eval(\`${p.form}\`);`);
-      if (p.type == "chk") obj[p.id] = $(`${p.id+i}`).checked;
+      if (p.type == "chk") obj[p.id] = $(p.id+i).checked;
+      if (p.type == "sel") {
+        obj[p.id] = eval(`eval(\`${p.form}\`);`);
+        let arr, str = "", val = num;
+        eval(p.select);
+        str += `<div><label for="${p.id+num}" class="label">${p.title}</label></div>
+        <select id="${p.id+num}" onchange="updateStates();">`;
+        for (let j = 0; j < arr.length; j++) str += `<option value="${j}">${arr[j]}</option>`;
+        str += "</select>";
+        $(p.id+i).innerHTML = str;
+        $(p.id+i).value = val;
+      }
     }
   }
   if (n != 0) obj.position = $(`pos${i}`).checked ? [ { x: (Number($(`x${i}`).value)+100)*((options.size-5)/200)+2.5, y: (Number($(`y${i}`).value)+100)*((options.size-5)/200)+2.5 } ]:null;
@@ -487,6 +517,20 @@ function checksum(i) {
   let out = 0;
   for (let j = 1; j < states.length; j++) {
     if (j != i) out += states[j].initial;
+  }
+  return out;
+}
+function ratsum(i) {
+  let out = 0;
+  for (let j = 1; j < states.length; j++) {
+    if (j != i) out += states[j].ratinit;
+  }
+  return out;
+}
+function ballsum(i) {
+  let out = 0;
+  for (let j = 1; j < states.length; j++) {
+    if (j != i) out += states[j].ballinit;
   }
   return out;
 }
@@ -660,7 +704,10 @@ function readgame(json) {
               graphmove: options.graphmove,
               ratcount: obj.options.ratcount ?? 0,
               ratspeed: obj.options.ratspeed ?? 7,
-              vibrate: options.vibrate
+              vibrate: options.vibrate,
+              grav: obj.options.grav ?? { x: 0, y: 3 },
+              ballcount: obj.options.ballcount ?? 0,
+              balljump: obj.options.balljump ?? 0.8
             };
             $('size').value = options.size;
             $('count').value = options.count;
@@ -675,6 +722,10 @@ function readgame(json) {
             $('music').checked = options.music;
             $('ratcount').value = options.ratcount;
             $('ratspeed').value = options.ratspeed;
+            $('ballcount').value = options.ballcount;
+            $('balljump').value = options.balljump*100;
+            $('gravx').value = options.grav.x;
+            $('gravy').value = options.grav.y;
             landscape = {
               type: obj.landscape.type,
               pow: obj.landscape.pow,

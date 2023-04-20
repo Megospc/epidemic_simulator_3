@@ -1,8 +1,28 @@
-select {
+#newevent {
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-family: Monospace, sans-serif;
+  background: linear-gradient(to right, #f0a0a0, #ff8080);
+  border-radius: 3px;
+  border: 2px solid #f05050;
+}
+.evselect {
   font-family: Monospace, sans-serif;
   font-size: 12px;
+  height: 18px;
+  border-radius: 3px;
   border: 1px solid #808080;
   border-radius: 3px;
+  display: inline;
+}
+.pselect {
+  font-family: Monospace, sans-serif;
+  font-size: 11px;
+  height: 17px;
+  border-radius: 3px;
+  border: 1px solid #808080;
+  border-radius: 3px;
+  display: inline;
 }
 #description {
   font-family: Monospace, sans-serif;
@@ -134,7 +154,7 @@ input[type="number"] {
   font-family: Monospace, sans-serif;
   font-size: 20px;
 }
-#newstate, #newevent {
+#newstate {
   margin-bottom: 10px;
   font-size: 12px;
   font-family: Monospace, sans-serif;

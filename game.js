@@ -1,4 +1,4 @@
-const version = "3.0.0"; //версия программы
+const version = "3.1.0"; //версия программы
 const fps = 30; //количество кадров в игровой секунде
 const lands = [ //массив цветов ландшафтов
   "#ffffff",
@@ -17,7 +17,8 @@ const lands = [ //массив цветов ландшафтов
   "#5000a0",
   "#a05000",
   "#a07800",
-  "#0060a0"
+  "#0060a0",
+  "#60c0d0"
 ];
 
 //получение JSON симуляции:
@@ -66,9 +67,9 @@ var arr = [], counts = [], mosq = [], sorted = [], stats = []; //массивы
 var lastTime = 0, frame_ = 0, date = 0, randomed = 0, heals = 0; //счётчики и другое
 var obj = JSON.parse(json); //объект симуляции
 var states = obj.states, options = obj.options, style = obj.style; //быстрый доступ к полям объекта
-var landscape = obj.landscape ?? { type: [[0]], pow: [[0]], res: 1 }, events = obj.events ?? []; //быстрый доступ к ландшафт и событиям
+var landscape = obj.landscape ?? { type: [[0]], pow: [[0]], res: 1 }, events = [], gravitation = {}; //быстрый доступ к ландшафтам, событиям и гравитации
 var scale = 420/options.size; //масштаб поля
-var counter = { cells: options.count, rats: options.ratcount }; //суммарный счётчик
+var counter = { cells: 0, special: 0 }; //суммарный счётчик
 var started = false, pause = false; //"начата ли симуляция?" и пауза
 var event = {}; //объект событий
 var music = new Audio("assets/music.mp3"); //музыка от zvukipro.com
@@ -216,7 +217,7 @@ function sort() { //метод сортировки статистики
       let maxi = j;
       for (let i = j; i < sorted.length; i++) {
         let c = sorted[i];
-        if (c.count.rats+c.count.cells > max.count.rats+max.count.cells) {
+        if (c.count.special+c.count.cells > max.count.special+max.count.cells) {
           maxi = i;
           max = c;
         }
@@ -346,7 +347,7 @@ function graph() {
 }
 event.teleporto = function() { //событие "большой взмес"
   vib(50);
-  event.teleportated = frame_;
+  event.splash = frame_;
   for (let i = 0; i < arr.length; i++) {
     if (rnd() >= arr[i].st.antievent) {
       arr[i].x = random(options.size-style.size)+(style.size/2);
@@ -355,21 +356,37 @@ event.teleporto = function() { //событие "большой взмес"
   }
 };
 event.boom = function(e) { //событие "взрыв"
-  vib(50);
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i].type == "cell" && rnd() < e.pow && rnd() >= arr[i].st.antievent) arr[i].dead();
+  if (e.pow) {
+    vib(50);
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].type == "cell" && rnd() < e.pow && rnd() >= arr[i].st.antievent) arr[i].dead();
+    }
   }
 };
 event.rats = function(e) { //событие "крысиный всплеск"
-  vib(50);
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i].type == "cell" && rnd() <
-e.pow && rnd() >= arr[i].st.antievent) arr[i] = new Rat(i, arr[i].x, arr[i].y, arr[i].state);
+  if (e.pow) {
+    vib(50);
+    event.splash = frame_;
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].type == "cell" && rnd() <
+e.pow && rnd() >= arr[i].st.antievent) {
+	    arr[i].dead();
+        arr[i] = new Rat(i, arr[i].x, arr[i].y, arr[i].state);
+      }
+    }
+  }
+};
+event.gravitation = function(e) { //событие "гравитация"
+  if (e.pow) {
+    vib(50);
+    gravitation = { x: e.x, y: e.y };
   }
 };
 event.epidemic = function(e) { //событие "эпидемия"
-  vib(50);
-  for (let i = 0; i < arr.length; i++) {
-    if (rnd() < e.pow && rnd() >= arr[i].st.antievent) arr[i].toState(e.state == -1 ? Math.floor(random(states.length)):e.state);
+  if (e.pow) {
+    vib(50);
+    for (let i = 0; i < arr.length; i++) {
+      if (rnd() < e.pow && rnd() >= arr[i].st.antievent) arr[i].toState(e.state == -1 ? Math.floor(random(states.length)):e.state);
+    }
   }
 };

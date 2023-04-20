@@ -84,8 +84,7 @@ class Cell { //основной класс
   }
   timeend() {
     if (rnd() <= this.st.heal) { //свойство "излечение"
-      if (this.st.transform >= 0) this.toState(this.st.transform);
-      else this.toState(Math.floor(random(states.length)));
+      this.toState(this.st.transform == -1 ? Math.floor(random(states.length)):(this.st.transform ?? 0)); 
     } else {
       this.dead();
     }
@@ -156,7 +155,7 @@ class Cell { //основной класс
     }
     
     if (!this.alive && this.st.relivetime && this.time+this.st.relivetime < timeNow() && !this.relived) { //свойство "воскрешение"
-      if (this.st.reliveprob > rnd()) arr[this.id] = new Cell(this.id, this.x, this.y, this.st.transform);
+      if (this.st.reliveprob > rnd()) arr[this.id] = new Cell(this.id, this.x, this.y, this.st.transform == -1 ? Math.floor(random(states.length)):(this.st.transform ?? 0));
       else this.relived = true; //уже пытался "возродиться"
     }
     
@@ -178,12 +177,13 @@ class Cell { //основной класс
               if (rnd() < this.st.killer) { //свойство "убийца"
                 p.dead();
               } else {
+                if (rnd() < p.st.potion) this.dead();
                 p.toState(this.infect);
               }
-              for (let i = 0; i < this.st.farinf; i++) arr[Math.floor(random(arr.length))].toState(this.state); //свойство "дальняя атака
+              for (let i = 0; i < this.st.farinf; i++) arr[Math.floor(random(arr.length))].toState(this.state); //свойство "дальняя атака"
             } else {
               if (rnd() < this.st.attacktrans && p.state != this.st.transform) { //свойство "переатака"
-                p.toState(this.transform ?? 0);
+                p.toState(this.st.transform == -1 ? Math.floor(random(states.length)):(this.st.transform ?? 0));
               } else {
                 if (rnd() < p.st.cattack) this.toState(p.state); //свойство "контратака"
               }
@@ -204,7 +204,7 @@ class Cell { //основной класс
     if (this.alive) {
       if (this.st.crazy/10 > rnd()) this.speed = { x: random(options.speed)-(options.speed/2), y: random(options.speed)-(options.speed/2) }; //свойство "сумасшедший"
       
-      let c = this.land.type == 4 ? 1-(this.land.pow):1; //ландшафт "пляжная зона"
+      let c = this.land.type == 4 ? 1-(this.land.pow):(this.land.type == 17 ? this.land.pow+1:1); //ландшафт "пляжная зона"
       
       if (this.st.robber && options.quar) this.home = { minx: Math.max(style.size/2, this.x-options.quar), miny: Math.max(style.size/2, this.y-options.quar), maxx: Math.min(options.size-(style.size/2), this.x+options.quar), maxy: Math.min(options.size-(style.size/2), this.y+options.quar) }; //свойство "грабитель"
       
@@ -324,6 +324,7 @@ class Cell { //основной класс
     this.land.pow = landscape.pow[this.land.x][this.land.y];
   }
 }
+
 class  Mosquito { //класс "москита"
   constructor(id, x, y, state) {
     this.speed = { x: random(options.mosquitospeed)-(options.mosquitospeed/2), y: random(options.mosquitospeed)-(options.mosquitospeed/2) }; //установка скорости
@@ -391,6 +392,7 @@ class  Mosquito { //класс "москита"
     this.land.pow = landscape.pow[this.land.x][this.land.y];
   }
 }
+
 class Rat { //класс "крысы"
   constructor(id, x, y, state) {
     //установка позиции
@@ -413,8 +415,8 @@ class Rat { //класс "крысы"
     if (state) this.toState(state);
     
     //обновление счётчика:
-    counter.rats++;
-    this.st.count.rats++;
+    counter.special++;
+    this.st.count.special++;
     
     this.landscape();
   }
@@ -423,7 +425,7 @@ class Rat { //класс "крысы"
       let laststate = this.st;
       
       //обновление счётчика:
-      this.st.count.rats--;
+      this.st.count.special--;
       this.state = state;
       
       this.time = timeNow();
@@ -431,7 +433,7 @@ class Rat { //класс "крысы"
       this.st = states[this.state];
       this.infect = this.st.infect ? this.st.infect-1:this.state;
       this.infectable = this.st.prob && this.st.zone;
-      this.st.count.rats++; //обновление счётчика
+      this.st.count.special++; //обновление счётчика
     }
   }
   dead() { //метод "смерти"
@@ -441,8 +443,8 @@ class Rat { //класс "крысы"
       this.frame = frame_;
       
       //обновление счётчика:
-      this.st.count.rats--;
-      counter.rats--;
+      this.st.count.special--;
+      counter.special--;
     }
   }
   handler() { //метод обработчика
@@ -455,7 +457,7 @@ class Rat { //класс "крысы"
     if (this.infectable && this.frame !== frame_) { //проверка заражения
       for (let i = 0; i < arr.length; i++) { //проверка всех клеток
         let p = arr[i];
-        if (p.state != this.infect && p.state != this.state && p.alive && p.type == "cell") { //проверка "не мой ли это друг?" и "простая ли это клетка?"
+        if (p.state != this.infect && p.state != this.state && p.alive && p.type != "rat") { //проверка "не мой ли это друг?" и "не крыса ли это?"
           if (this.x-this.st.zone <= p.x && this.x+this.st.zone >= p.x && this.y-this.st.zone <= p.y && this.y+this.st.zone >= p.y) { //проверка зоны заражения
             if (rnd() < this.st.prob && (p.st.protect ?? 0 /* свойство "защита" */) < rnd()) p.toState(this.infect); //проверка вероятности заражения
           }
@@ -481,7 +483,7 @@ class Rat { //класс "крысы"
     }
   }
   render() { //метод отрисовки на холсте
-    if (!this.st.invisible) { //свойство "неаидимка"
+    if (!this.st.invisible) { //свойство "невидимка"
       let fig = function(obj, size) {
         let px = size*style.ratsize;
         let l = px/2;
@@ -524,8 +526,144 @@ class Rat { //класс "крысы"
   first() {} //метод пре-отрисовки (пока не нужен)
   end() {}  //метод конца обработки (пока не нужен)
 }
+
+class Ball { //класс "шара"
+    constructor(id, x, y, state) {
+    //установка позиции
+    this.x = x ?? random(options.size-style.ratsize)+(style.ratsize/2);
+    this.y = y ?? random(options.size-style.ratsize)+(style.ratsize/2);
+    
+    this.speed = { x: 0, y: 0 }; //установка скорости
+    
+    //инициализация:
+    this.state = state ?? 0;
+    this.id = id;
+    this.alive = true;
+    this.time = timeNow();
+    this.st = states[this.state];
+    this.infectable = false;
+    this.frame = this.state ? 0:false;
+    this.infect = this.st.infect ?? this.state;
+    this.infectable = this.st.zone && this.st.prob;
+    this.type = "ball";
+    if (state) this.toState(state);
+    
+    //обновление счётчика:
+    counter.special++;
+    this.st.count.special++;
+    
+    this.landscape();
+  }
+  toState(state) { //метод перехода в другое состояние
+    if (this.alive) {
+      let laststate = this.st;
+      
+      //обновление счётчика:
+      this.st.count.special--;
+      this.state = state;
+      
+      //"подскок":
+      this.speed.x += -gravitation.x*10;
+      this.speed.y += -gravitation.y*10;
+      
+      this.time = timeNow();
+      this.frame = frame_;
+      this.st = states[this.state];
+      this.infect = this.st.infect ? this.st.infect-1:this.state;
+      this.infectable = this.st.prob && this.st.zone;
+      this.st.count.special++; //обновление счётчика
+    }
+  }
+  dead() { //метод "смерти"
+    if (this.alive) {
+      this.alive = false;
+      this.time = timeNow();
+      this.frame = frame_;
+      
+      //обновление счётчика:
+      this.st.count.special--;
+      counter.special--;
+    }
+  }
+  handler() { //метод обработчика
+    if (this.land.type == 8 && this.land.pow > rnd()) this.dead(); //ландшафт "охотничья зона"
+    if (this.alive && this.land.type == 15 && this.land.pow > rnd()) {
+        this.dead();
+        arr[this.id] = new Cell(this.id, this.x, this.y, this.state);
+      } //ландшафт "человечья зона"
+    
+    if (this.infectable && this.frame !== frame_) { //проверка заражения
+      for (let i = 0; i < arr.length; i++) { //проверка всех клеток
+        let p = arr[i];
+        if (p.state != this.infect && p.state != this.state && p.alive) { //проверка "не мой ли это друг?"
+          if (this.x-this.st.zone <= p.x && this.x+this.st.zone >= p.x && this.y-this.st.zone <= p.y && this.y+this.st.zone >= p.y) { //проверка зоны заражения
+            if (rnd() < this.st.prob && (p.st.protect ?? 0 /* свойство "защита" */) < rnd()) p.toState(this.infect); //проверка вероятности заражения
+          }
+        }
+      }
+    }
+  }
+  move() { //метод движения
+    if (this.alive) {
+      let home = { minx: style.ballsize/2, miny: style.ballsize/2, maxx: options.size-(style.ballsize/2), maxy: options.size-(style.ballsize/2) };
+      
+      //движение:
+      this.speed.x += gravitation.x;
+      this.speed.y += gravitation.y;
+      this.x += this.speed.x;
+      this.y += this.speed.y;
+      
+      //проверка касания края:
+      if (this.x < home.minx) this.speed.x *=-options.balljump, this.x = home.minx;
+      if (this.x > home.maxx) this.speed.x *=-options.balljump, this.x = home.maxx;
+      if (this.y < home.miny) this.speed.y *=-options.balljump, this.y = home.miny;
+      if (this.y > home.maxy) this.speed.y *=-options.balljump, this.y = home.maxy;
+      
+      this.landscape();
+    }
+  }
+  render() { //метод отрисовки на холсте
+    if (!this.st.invisible) { //свойство "невидимка"
+      let fig = function(obj, size) {
+        ctx.beginPath();
+        ctx.arc(X(obj.x*scale+15), Y(obj.y*scale+15), X(size*style.ballsize/2), 0, Math.PI*2);
+        ctx.fill();
+      };
+      if (this.alive) {
+        let trans = this.st.transparent ? 128:255;
+        ctx.fillStyle = this.st.color + ahex(trans);
+        fig(this, 1);
+        if (frame_ < this.frame+5 && style.chanim && this.frame !== false) { //отрисовка перехода в другое состояние
+          let fram = frame_-this.frame;
+          let cellTrans = this.st.transparent ? 128:255;
+          let trans = ahex(cellTrans*(5-fram)/10);
+          ctx.fillStyle = this.st.color + trans;
+          fig(this, 2);
+        }
+      } else {
+        if (frame_ < this.frame+15 && style.deadanim) { //отрисовка "смерти"
+          let fram = frame_-this.frame;
+          let size = fram/7.5+1;
+          let cellTrans = this.st.transparent ? 128:255;
+          let trans = ahex(cellTrans*(15-fram)/15);
+          ctx.fillStyle = this.st.color + trans;
+          fig(this, size);
+        }
+      }
+    }
+  }
+  landscape() { //метод проверки ландшафта
+    let px = options.size/landscape.res;
+    this.land = { x: Math.floor(this.x/px), y: Math.floor(this.y/px) };
+    this.land.type = landscape.type[this.land.x][this.land.y];
+    this.land.pow = landscape.pow[this.land.x][this.land.y];
+  }
+  first() {} //метод пре-отрисовки (пока не нужен)
+  end() {}  //метод конца обработки (пока не нужен)
+}
+
 function frame() { //метод обработки и отрисовки кадра
-  if (counter.cells+counter.rats > 0 || !options.stop) {
+  if (counter.cells+counter.special > 0 || !options.stop) {
     let FPS = Math.floor(10000/(performance.now()-lastTime))/10;
     let start = performance.now();
     lastTime = performance.now();
@@ -533,9 +671,9 @@ function frame() { //метод обработки и отрисовки кад�
     if (!pause) { //запись счётчиков в "архив"
       let counts_ = [];
       for (let i = 0; i < states.length; i++) {
-        counts_[i] = states[i].count.cells+states[i].count.rats;
+        counts_[i] = states[i].count.cells+states[i].count.special;
       }
-      counts.sum = counter.cells+counter.rats;
+      counts.sum = counter.cells+counter.special;
       counts.push(counts_);
     }
     
@@ -606,7 +744,7 @@ function frame() { //метод обработки и отрисовки кад�
       ctx.fillText(`Время: ${flr(timeNow()/1000)}с`, X(490), Y(style.biggraph ? 260:30));
       ctx.fillText(`FPS: ${flr(FPS) + " x" + (options.showspeed ?? 1)}`, X(490), Y(style.biggraph ? 290:60));
       if (!style.biggraph) ctx.fillText("Статистика:", X(490), Y(120));
-      ctx.fillText(`${counter.cells+counter.rats}${counter.rats > 0 ? ` (${counter.cells})`:""} | сумма`, X(490), Y(style.biggraph ? 350:150));
+      ctx.fillText(`${counter.cells+counter.special}${counter.special > 0 ? ` (${counter.cells})`:""} | сумма`, X(490), Y(style.biggraph ? 350:150));
       sort();
       
       ctx.font = `${X(Math.min(Math.floor(9/states.length*18), 18))}px Monospace`;
@@ -617,7 +755,7 @@ function frame() { //метод обработки и отрисовки кад�
         for (let i = 0; i < sorted.length; i++) { //отрисовка статистики
           let st = sorted[i];
           ctx.fillStyle = st.color + (st.transparent ? "80":"ff");
-          ctx.fillText(`${st.count.cells+st.count.rats}${st.count.rats ? ` (${st.count.cells})`:""} | ${st.name} ${st.invisible? "(невидим)":""}`, X(490), Y(180+(i*Math.min(Math.floor(9/states.length*30), 30))));
+          ctx.fillText(`${st.count.cells+st.count.special}${st.count.special ? ` (${st.count.cells})`:""} | ${st.name} ${st.invisible? "(невидим)":""}`, X(490), Y(180+(i*Math.min(Math.floor(9/states.length*30), 30))));
         }
         
         graph();
@@ -630,8 +768,8 @@ function frame() { //метод обработки и отрисовки кад�
     ctx.fillRect(0, 0, X(15), Y(450));
     ctx.fillRect(X(435), 0, X(15), Y(450));
     
-    if (event.teleportated && event.teleportated+10 > frame_) { //событие "большой взмес"
-      let fram = (frame_-event.teleportated)/10;
+    if (event.splash && event.splash+10 > frame_) { //"всплеск событий"
+      let fram = (frame_-event.splash)/10;
       ctx.fillStyle = "#ffffff" + ahex(255-(fram*255));
       ctx.fillRect(X(15), Y(15), X(420), Y(420));
     }
@@ -703,7 +841,7 @@ function frame() { //метод обработки и отрисовки кад�
     }
     
     let perf = performance.now()-start;
-    if (!pause) stats.push({ perf: perf, sum: counter.cells+counter.rats });
+    if (!pause) stats.push({ perf: perf, sum: counter.cells+counter.special });
     
     if (!style.onlygame) { //отрисовка статистики
       ctx.fillStyle = "#000000";
@@ -780,8 +918,7 @@ ${frames}`;
   }
 }
 function start() { //метод инициализации
-  let rats = 0;
-  let cells = 0;
+  let rats = 0, cells = 0, balls = 0;
   
   //установка переменным изначальные значения:
   arr = [];
@@ -791,15 +928,16 @@ function start() { //метод инициализации
   frame_ = 0;
   randomed = 0;
   heals = 0;
-  counter = { cells: 0, rats: 0 };
-  states[0].count = { cells: 0, rats: 0 };
-  for (let i = 0; i < events.length; i++) events[i].done = false;
-  event.teleportated = false;
+  counter = { cells: 0, special: 0 };
+  states[0].count = { cells: 0, special: 0 };
+  Object.assign(events, obj.events ?? []);
+  Object.assign(gravitation, options.grav ?? { x: 0, y: 3 });
+  event.splash = false;
   
   //заполнение массивов:
   for (let i = 1, j = 0; i < states.length; i++) {
     let ill = states[i];
-    ill.count = { cells: 0, rats: 0 };
+    ill.count = { cells: 0, special: 0 };
     ill.lastadd = 0;
     ill.added = 0;
     for (let k = 0; k < ill.initial; k++, j++) {
@@ -808,17 +946,12 @@ function start() { //метод инициализации
       arr.push(new Cell(j, x, y, i));
       cells++;
     }
-    for (let k = 0; k < ill.ratinit; k++, j++) {
-      arr.push(new Rat(j, null, null, i));
-      rats++;
-    }
+    for (let k = 0; k < ill.ratinit; k++, j++, rats++) arr.push(new Rat(j, null, null, i));
+    for (let k = 0; k < ill.ballinit; k++, j++, balls++) arr.push(new Ball(j, null, null, i));
   }
-  for (let i = arr.length; cells < options.count; i++, cells++) {
-    arr.push(new Cell(i));
-  }
-  for (let i = arr.length; rats < options.ratcount; i++, rats++) {
-    arr.push(new Rat(i));
-  }
+  for (let i = arr.length; cells < options.count; i++, cells++) arr.push(new Cell(i));
+  for (let i = arr.length; rats < options.ratcount; i++, rats++)arr.push(new Rat(i));
+  for (let i = arr.length; balls < options.ballcount; i++, balls++)  arr.push(new Ball(i));
   
   sort();
 }
