@@ -25,34 +25,37 @@
       <input type="number" id="speed" value="7" onchange="checknum(this, 1, 10, false); window.options.speed = Number(this.value);"></div>
       <div><label for="size" class="label">Размер поля:</label>
       <input type="number" id="size" value="420" onchange="checknum(this, 210, 1400, false); window.options.size = Number(this.value); updateStates();"></div>
-      <div><label for="ratcount" class="label">Количество крыс:</label>
+      <div class="ex_cells"><label for="ratcount" class="label">Количество крыс:</label>
       <input type="number" id="ratcount" value="0" onchange="checknum(this, 0, 1000, true); window.options.ratcount = Number(this.value);"></div>
-      <div><label for="ratspeed" class="label">Максимальная скорость крыс:</label>
+      <div class="ex_cells"><label for="ratspeed" class="label">Максимальная скорость крыс:</label>
       <input type="number" id="ratspeed" value="7" onchange="checknum(this, 1, 10, true); window.options.ratspeed = Number(this.value);"></div>
-      <div><label for="ballcount" class="label">Количество шаров:</label>
+      <div class="ex_cells"><label for="ballcount" class="label">Количество шаров:</label>
       <input type="number" id="ballcount" value="0" onchange="checknum(this, 0, 1000, true); window.options.ballcount = Number(this.value);"></div>
-      <div><label for="balljump"class="label">Упругость шаров(%):</label>
+      <div class="ex_cells"><label for="balljump"class="label">Упругость шаров(%):</label>
       <input type="number" id="balljump" value="80" onchange="checknum(this, 0, 100, false); window.options.balljump = Number(this.value)/100;"></div>
       <div><label for="quar" class="label">Карантин:</label>
       <input type="number" id="quar" value="0" onchange="checknum(this, 0, options.size, true); window.options.quar = Number(this.value);"></div>
-      <div><label for="mosquitospeed" class="label">Скорость москита:</label>
+      <div class="ex_cells"><label for="mosquitospeed" class="label">Скорость москита:</label>
       <input type="number" id="mosquitospeed" value="7" onchange="checknum(this, 1, 10, true); window.options.mosquitospeed = Number(this.value);"></div>
-      <div><label for="mosquitoprob" class="label">Вероятность москита:</label>
+      <div class="ex_cells"><label for="mosquitoprob" class="label">Вероятность москита:</label>
       <input type="number" id="mosquitoprob" value="50" onchange="checknum(this, 0, 100, false); window.options.mosquitoprob = Number(this.value)/100; updateStates();"></div>
-      <div><label for="mosquitotime" class="label">Время москита:</label>
+      <div class="ex_cells"><label for="mosquitotime" class="label">Время москита:</label>
       <input type="number" id="mosquitotime" value="3" onchange="checknum(this, 0, 120, false); window.options.mosquitotime = Number(this.value)*1000; updateStates();"></div>
-      <div><label for="mosquitozone" class="label">Зона москита:</label>
+      <div class="ex_cells"><label for="mosquitozone" class="label">Зона москита:</label>
       <input type="number" id="mosquitozone" value="1" onchange="checknum(this, 0, 420, false); window.options.mosquitozone = Number(this.value); updateStates();"></div>
       <div><label for="landres" class="label">Разрешение ландшафта:</label>
       <input type="number" id="landres" value="7" onchange="checknum(this, 3, 20, true); landResCh();"></div>
       <div><label for="healzone" class="label">Зона излечения кликом:</label>
       <input type="number" id="healzone" value="30" onchange="checknum(this, 0, options.size, false); window.options.healzone = Number(this.value);"></div>
       <div><label for="healto" class="label">Излечение кликом в:</label>
-      <input type="number" id="healto" value="1" onchange="checknum(this, 1, states.length, true); window.options.healto = Number(this.value)-1;"></div>
-      <div><label for="gravx" class="label">Гравитация X:</label>
+      <select id="healto" class="pselect">
+        <option value="0">здоровые</option>
+      </select></div>
+      <div class="ex_cells"><label for="gravx" class="label">Гравитация X:</label>
       <input type="number" id="gravx" value="0" onchange="checknum(this, -5, 5, false); window.options.grav.x = Number(this.value);"></div>
-      <div><label for="gravy" class="label">Гравитация Y:</label>
+      <div class="ex_cells"><label for="gravy" class="label">Гравитация Y:</label>
       <input type="number" id="gravy" value="3" onchange="checknum(this, -5, 5, false); window.options.grav.y = Number(this.value);"></div>
+      <div><button onclick="$('extensionsdiv').style.display='block'; $('editor').style.display='none';" class="extensions">дополнения</button></div>
       <p class="add" onclick="addopt();">Дополнительно <img src="assets/down.svg" id="addopt_" width="12"></p>
       <div id="addopt" style="display: none;">
         <div id="resolution">
@@ -112,6 +115,9 @@
     <div><button onclick="lsog();" id="lsog">загрузить точку восстановления</button></div>
     <div><input type="file" id="file" onchange="opengame(this.files[0]);"></div>
     <div><textarea id="console" readonly></textarea></div>
+  </div>
+  <div id="extensionsdiv" style="display: none;">
+    <div><button onclick="$('extensionsdiv').style.display='none'; $('editor').style.display='block';" id="back">назад</button></div>
   </div>
 </body>
 </html>

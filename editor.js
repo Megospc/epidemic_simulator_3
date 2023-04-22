@@ -3,75 +3,142 @@ const lands = [
   { color: "#80a000", bcolor: "#709000", name: "отравленная зона" },
   { color: "#00a0a0", bcolor: "#009090", name: "санитарная зона" },
   { color: "#a000a0", bcolor: "#900090", name: "зона биологической опасности" },
-  { color: "#a09000", bcolor: "#908000", name: "пляжная зона" },
-  { color: "#a00000", bcolor: "#900000", name: "зона повышенного заражёния" },
-  { color: "#605000", bcolor: "#504000", name: "свалочная зона" },
+  { color: "#a09000", bcolor: "#908000", name: "пляжная зона", ext: "move" },
+  { color: "#a00000", bcolor: "#900000", name: "зона повышенного заражения", ext: "attack" },
+  { color: "#605000", bcolor: "#504000", name: "свалочная зона", ext: "cells" },
   { color: "#f0a070", bcolor: "#d09060", name: "аллергенная зона" },
-  { color: "#a00050", bcolor: "#900040", name: "охотничья зона" },
-  { color: "#0040a0", bcolor: "#003090", name: "морская зона" },
-  { color: "#802000", bcolor: "#701000", name: "взрывоопасная зона" },
-  { color: "#408020", bcolor: "#307010", name: "лагерьная зона" },
+  { color: "#a00050", bcolor: "#900040", name: "охотничья зона", ext: "cells" },
+  { color: "#0040a0", bcolor: "#003090", name: "морская зона", ext: "deads" },
+  { color: "#802000", bcolor: "#701000", name: "взрывоопасная зона", ext: "deads" },
+  { color: "#408020", bcolor: "#307010", name: "лагерьная зона", ext: "deads" },
   { color: "#000000", bcolor: "#202020", name: "строительная зона" },
-  { color: "#5000a0", bcolor: "#400090", name: "магическая зона" },
+  { color: "#5000a0", bcolor: "#400090", name: "магическая зона", ext: "cells" },
   { color: "#a05000", bcolor: "#a04000", name: "зона строгого конроля" },
-  { color: "#a07800", bcolor: "#907000", name: "человеческая зона" },
-  { color: "#0060a0", bcolor: "#005090", name: "научная зона" },
-  { color: "#60c0d0", bcolor: "#50b0c0", name: "леденая зона" }
+  { color: "#a07800", bcolor: "#907000", name: "человеческая зона", ext: "cells" },
+  { color: "#0060a0", bcolor: "#005090", name: "научная зона", ext: "move" },
+  { color: "#60c0d0", bcolor: "#50b0c0", name: "леденая зона", ext: "move" }
 ];
 const eventlist = [
-  { name: "большой взмес", width: 340, id: "teleporto", props: [] },
-  { name: "взрыв", width: 450, id: "boom", props: [
-    { id: "pow", text: "сила:", check: [0, 100, false], form: "${num}/100", aform: "${num}*100" }
+  { name: "большой взмес", id: "teleporto", props: [], ext: "move" },
+  { name: "карантин", id: "quar", props: [
+    { id: "duration", text: "длительность:", check: [0, 120, false], form: "${num}*1000", aform: "${num}/1000" }
   ] },
-  { name: "эпидемия", width: 590, id: "epidemic", props: [
+  { name: "взрыв", id: "boom", props: [
+    { id: "pow", text: "сила:", check: [0, 100, false], form: "${num}/100", aform: "${num}*100" }
+  ], ext: "deads" },
+  { name: "эпидемия", id: "epidemic", props: [
     { id: "pow", text: "сила:", check: [0, 100, false], form: "${num}/100", aform: "${num}*100" },
     { id: "state", text: "состояние:", check: [0, 'states.length', true], form: "${num}-1", aform: "${num}+1" }
   ] },
-  { name: "крысиный всплеск", width: 450, id: "rats", props: [
+  { name: "крысиный всплеск", id: "rats", props: [
     { id: "pow", text: "сила:", check: [0, 100, false], form: "${num}/100", aform: "${num}*100" }
-  ] },
-  { name: "смена гравитации", width: 500, id: "gravitation", props: [
+  ], ext: "cells" },
+  { name: "смена гравитации", id: "gravitation", props: [
     { id: "x", text: "X:", check: [-5, 5, false], form: "${num}", aform: "${num}" },
     { id: "y", text: "Y:", check: [-5, 5, false], form: "${num}", aform: "${num}" }
-  ] },
+  ], ext: "cells" },
 ];
 const props = [
-  { title: "Коэффициент скорости:", type: "num", id: "speed", check: [0, 3, false], default: 1, form: "${num}", aform: "${num}" },
-  { title: "Вероятность излечения(%):", type: "num", id: "heal", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Трансформация в:", type: "sel", id: "transform", select: "arr = ['случайное']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}-1", aform: "${num}+1" },
-  { title: "Заражение в:", type: "sel", id: "infect", select: "arr = ['себя']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}", aform: "${num}" },
-  { title: "Паразит (0 = без паразита):", type: "num", id: "parasite", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000" },
-  { title: "Инфекция после смерти(с):", type: "num", id: "after", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000" },
-  { title: "Переатака(%):", type: "num", id: "attacktrans", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Отдых(с):", type: "num", id: "rest", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000" },
-  { title: "Телепорт(пкс.):", type: "num", id: "teleporto", check: [0, 420, false], default: 0, form: "${num}", aform: "${num}" },
-  { title: "Москиты(шт.):", type: "num", id: "mosquito", check: [0, 3, true], default: 0, form: "${num}", aform: "${num}" },
-  { title: "Убийца(%):", type: "num", id: "killer", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Зона магнита(пкс.):", type: "num", id: "magnet", check: [0, 420, false], default: 0, form: "${num}", aform: "${num}" },
-  { title: "Сила магнита:", type: "num", id: "magnetpow", check: [0, 12, false], default: 0, form: "${num}", aform: "${num}" },
+  { title: "Коэффициент скорости:", type: "num", id: "speed", check: [0, 3, false], default: 1, form: "${num}", aform: "${num}", ext: "move" },
+  { title: "Вероятность излечения(%):", type: "num", id: "heal", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
+  { title: "Трансформация в:", type: "sel", id: "transform", select: "arr = ['случайное']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}-1", aform: "${num}+1", ext: "attack" },
+  { title: "Заражение в:", type: "sel", id: "infect", select: "arr = ['себя']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}", aform: "${num}", ext: "attack" },
+  { title: "Паразит (0 = без паразита):", type: "num", id: "parasite", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", exts: "deads" },
+  { title: "Инфекция после смерти(с):", type: "num", id: "after", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
+  { title: "Переатака(%):", type: "num", id: "attacktrans", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
+  { title: "Отдых(с):", type: "num", id: "rest", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
+  { title: "Телепорт(пкс.):", type: "num", id: "teleporto", check: [0, 420, false], default: 0, form: "${num}", aform: "${num}", ext: "move" },
+  { title: "Москиты(шт.):", type: "num", id: "mosquito", check: [0, 3, true], default: 0, form: "${num}", aform: "${num}", ext: "cells" },
+  { title: "Убийца(%):", type: "num", id: "killer", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack"},
+  { title: "Зона магнита(пкс.):", type: "num", id: "magnet", check: [0, 420, false], default: 0, form: "${num}", aform: "${num}", ext: "move" },
+  { title: "Сила магнита:", type: "num", id: "magnetpow", check: [0, 12, false], default: 0, form: "${num}", aform: "${num}", ext: "move" },
   { title: "Добавка время(с):", type: "num", id: "addtime", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", firstno: true },
   { title: "Добавка количество(шт.):", type: "num", id: "addcount", check: [0, 20, true], default: 0, form: "${num}", aform: "${num}", firstno: true },
   { title: "Количество добавок (0 = бесконечно):", type: "num", id: "countadd", check: [0, 50, true], default: 0, form: "${num}", aform: "${num}", firstno: true },
-  { title: "Шипы(%):", type: "num", id: "spikes", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
+  { title: "Шипы(%):", type: "num", id: "spikes", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
   { title: "Анти-ландшафт(%):", type: "num", id: "antiland", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
   { title: "Анти-событие(%):", type: "num", id: "antievent", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
   { title: "Аллегрия:", type: "num", id: "allergy", check: [0, 'states.length', true], default: 0, form: "${num}-1", aform: "${num}+1" },
-  { title: "Контратака(%):", type: "num", id: "cattack", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Дальняя атака(шт.):", type: "num", id: "farinf", check: [0, 5, true], default: 0, form: "${num}", aform: "${num}" },
-  { title: "Сумасшедший(‰):", type: "num", id: "crazy", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Крысы(шт.):", type: "num", id: "ratinit", check: [0, 'options.ratcount-ratsum(n) ', true], default: 0, form: "${num}", aform: "${num}", firstno: true },
-  { title: "Шары(шт.):", type: "num", id: "ballinit", check: [0, 'options.ballinit-ballsum(n)', true], default: 0, form: "${num}", aform: "${num}", firstno: true },
-  { title: "Воскрешение время(с.):", type: "num", id: "relivetime", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000" },
-  { title: "Воскрешение вероятность(%):", type: "num", id: "reliveprob", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Группа:", type: "num", id: "group", check: [0, 'states.length', true], default: 0, form: "${num}", aform: "${num}" },
-  { title: "Уязвимость(%):", type: "num", id: "defect", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Остановка(%):", type: "num", id: "stopping", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Ядовитое(%):", type: "num", id: "potion", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
+  { title: "Контратака(%):", type: "num", id: "cattack", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
+  { title: "Дальняя атака(шт.):", type: "num", id: "farinf", check: [0, 5, true], default: 0, form: "${num}", aform: "${num}", ext: "attack" },
+  { title: "Сумасшедший(‰):", type: "num", id: "crazy", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "move" },
+  { title: "Крысы(шт.):", type: "num", id: "ratinit", check: [0, 'options.ratcount-ratsum(n) ', true], default: 0, form: "${num}", aform: "${num}", firstno: true, ext: "cells" },
+  { title: "Шары(шт.):", type: "num", id: "ballinit", check: [0, 'options.ballinit-ballsum(n)', true], default: 0, form: "${num}", aform: "${num}", firstno: true, ext: "cells" },
+  { title: "Воскрешение время(с.):", type: "num", id: "relivetime", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
+  { title: "Воскрешение вероятность(%):", type: "num", id: "reliveprob", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
+  { title: "Группа:", type: "num", id: "group", check: [0, 'states.length', true], default: 0, form: "${num}", aform: "${num}", ext: "attack" },
+  { title: "Уязвимость(%):", type: "num", id: "defect", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
+  { title: "Остановка(%):", type: "num", id: "stopping", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "move" },
+  { title: "Ядовитое(%):", type: "num", id: "potion", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
   { title: "Грабитель", type: "chk", id: "robber", default: false },
-  { title: "Все за одного", type: "chk", id: "allone", default: false },
+  { title: "Все за одного", type: "chk", id: "allone", default: false, ext: "deads" },
   { title: "Невидимка", type: "chk", id: "invisible", default: false },
-  { title: "Водобоязнь", type: "chk", id: "waterscary", default: false },
-  { title: "Строитель", type: "chk", id: "builder", default: false }
+  { title: "Водобоязнь", type: "chk", id: "waterscary", default: false, ext: "deads" },
+  { title: "Строитель", type: "chk", id: "builder", default: false, ext: "deads" }
+];
+const extensionlist = [
+  { id: "attack", name: "Атака", info: `Ландшафты:
+- зона повышенного заражения
+
+Свойства:
+- трансформация в
+- заражение в
+- переатака
+- убийца
+- шипы
+- группа
+- контратака
+- уязвимость
+`, color: "#f08080" },
+  { id: "move", name: "Движение", info: `Ландшафты:
+- пляжная зона
+- лёдная зона
+- научная зона
+
+Свойства:
+- коэффициент скорости
+- телепорт
+- магнит
+- сумасшедший
+- остановка
+
+События:
+- большой взмес
+`, color: "#8080f0" },
+  { id: "cells", name: "Другие клетки", info: `Ландшафты:
+- свалочная зона
+- охотничья зона
+- магическая зона
+- человеческая зона
+
+Свойства:
+- москиты
+- крысы
+- шары
+
+События:
+- крысиный всплеск
+- смена гравитации
+`, color: "#80f080" },
+  { id: "deads", name: "Смерти", info: `Ландшафты:
+- взрывоопасная зона
+- лагерьная зона
+- морская зона
+
+Свойства:
+- вероятность излечения
+- паразит
+- инфекция после смерти
+- отдых
+- воскрешение
+- ядовитое
+- все за одного
+- водобоязнь
+- строитель
+
+События:
+- взрыв
+`, color: "#f0d080" }
 ];
 var lastnum = 0, lastev = 0;
 var states = [];
@@ -127,13 +194,19 @@ var landsel;
     options.biggraph = saved.biggraph;
   }
 }
-{
-  for (let i = lands.length-1; i >= 0; i--) {
+function landsUpdate() {
+  $('landscapes').innerHTML = "";
+  for (let i = 0, j = 0; i < lands.length; i++) {
     let p = lands[i];
-    if ((i+1)%8 == 0 && i) $('landscapes').innerHTML = "<div>" + $('landscapes').innerHTML;
-    if ((i+1)%8 == 7) $('landscapes').innerHTML = "</div>" + $('landscapes').innerHTML;
-    $('landscapes').innerHTML = `<button class="landscape" style="background-color: ${p.color}; border: 2px solid ${p.bcolor};" onclick="setLand(${i});"></button>` + $('landscapes').innerHTML;
+    if (exadded(p.ext)) {
+      if (j%8 == 0 && j) $('landscapes').innerHTML += "<div></div>";
+      $('landscapes').innerHTML += `<button class="landscape" id="land${i}" style="background-color: ${p.color}; border: 2px solid ${p.bcolor};" onclick="setLand(${i});"></button>`;
+      j++;
+    }
   }
+}
+landsUpdate();
+{
   for (let i = 0; i < landscape.res; i++) {
     landscape.type[i] = new Array(landscape.res).fill(0);
     landscape.pow[i] = new Array(landscape.res).fill(0);
@@ -164,10 +237,12 @@ function newevent() {
   let n = lastev;
   lastev++;
   let sel = `<select id="event${n}type" class="evselect" onchange="updateEvents();">`;
-  for (let j = 0; j < eventlist.length; j++) sel += `<option value="${j}">${eventlist[j].name}</option>`;
+  for (let j = 0; j < eventlist.length; j++) {
+    if (exadded(eventlist[j].ext)) sel += `<option value="${j}">${eventlist[j].name}</option>`;
+  }
   sel += "</select>";
   div.id = `event${events.length}`;
-  div.style.width = `${eventlist[0].width}px`;
+  div.style.width = "600px";
   div.style.marginTop = "5px";
   div.style.border = "2px solid #a0a0a0";
   div.style.borderRadius = "3px";
@@ -293,14 +368,14 @@ function newState(name, color) {
   for (let i = 0; i < props.length; i++) {
     let p = props[i];
     if (!p.firstno || num != 0) {
-      if (p.type == "num") add += `<div><label for="${p.id+num}" class="label">${p.title}</label>
-      <input type="number" id="${p.id+num}" onchange="updateStates();" value="${p.default}" ${p.deflaut ? "checked":""}></div>`;
-      if (p.type == "chk") add += `<div><input type="checkbox" id="${p.id+num}" onchange="updateStates();">
+      if (p.type == "num") add += `<div id="${p.id+num}div"${exadded(p.ext) ? '':' style="display: none;"'}><label for="${p.id+num}" class="label">${p.title}</label>
+      <input type="number" id="${p.id+num}" onchange="updateStates();" value="${p.default}" ${p.default ? "checked":""}></div>`;
+      if (p.type == "chk") add += `<div id="${p.id+num}div"${exadded(p.ext) ? '':' style="display: none;"'}><input type="checkbox" id="${p.id+num}" onchange="updateStates();">
       <label for="${p.id+num}" class="label">${p.title}</label></div>`;
       if (p.type == "sel") {
     	let arr;
         eval(p.select);
-    	add += `<div><label for="${p.id+num}" class="label">${p.title}</label>
+    	add += `<div id="${p.id+num}div"${exadded(p.ext) ? '':' style="display: none;"'}><label for="${p.id+num}" class="label">${p.title}</label>
         <select id="${p.id+num}" class="pselect" onchange="updateStates();">`;
         for (let j = 0; j < arr.length; j++) add += `<option value="${j}">${arr[j]}</option>`;
         add += "</select></div>";
@@ -353,6 +428,7 @@ function newState(name, color) {
       <input type="number" id="x${num}" onchange="checknum(this, -100, 100, false); updateStates();" value="0"></div>
       <div><label for="y${num}" class="label">Точная позиция(Y):</label>
       <input type="number" id="y${num}" onchange="checknum(this, -100, 100, false); updateStates();" value="0"></div>`}
+      <div><button onclick="$('extensionsdiv').style.display='block'; $('editor').style.display='none';" class="extensions">дополнения</button></div>
     </div>
     <div class="border"></div>
   `;
@@ -372,7 +448,7 @@ function newState(name, color) {
   };
   for (let i = 0; i < props.length; i++) {
     let p = props[i];
-    if (!p.firstno || num != 0) obj[p.id] = p.default;
+    if (!p.firstno || num != 0) obj[p.id] = p.default ?? 0;
   }
   $('states').appendChild(div);
   $(`color${num}`).addEventListener("change", updateStates)
@@ -438,6 +514,9 @@ function updateState(n) {
   $(`num${i}`).style.color = obj.color;
   $(`num${i}`).innerHTML = n+1;
   states[n] = obj;
+  let str = "", val = $('healto').value;
+  for (let i = 0; i < states.length; i++) str += `<option value="${i}">${states[i].name}</option>`;
+  $('healto').innerHTML = str;
 }
 function updateStates() {
   for (let i = 0; i < states.length; i++) {
@@ -454,7 +533,6 @@ function updateEvent(n) {
     num: i
   };
   let e = eventlist[Number($(`event${i}type`).value)];
-  obj.div.style.width = `${e.width}px`;
   events[n] = obj;
   $(`event${i}prop0`).style.display = e.props[0] ? 'inline':'none';
   $(`event${i}prop1`).style.display = e.props[1] ? 'inline':'none';
@@ -645,6 +723,10 @@ function readgame(json) {
                 let num = st[p.id];
                 if (p.type == "num" && (!p.firstno || i != 0)) $(`${p.id+i}`).value = eval(`eval(\`${p.aform}\`);`) ?? p.default;
                 if (p.type == "chk") $(`${p.id+i}`).checked = p.invert ? !st[p.id]:st[p.id];
+                if (num != p.default && !exadded(p.ext)) {
+                  log(`Загрузка дополнения '${p.ext}'...`);
+                  addex(p.ext);
+                }
               }
               if (i != 0 && st.position) {
                 $(`pos${i}`).checked = true;
@@ -787,6 +869,102 @@ function saveSets() {
     biggraph: options.biggraph,
     graphmove: options.graphmove
   }));
+}
+function infex(id) {
+  let i;
+  for (let j = 0; j < extensionlist.length; j++) {
+    if (id == extensionlist[j].id) i = j;
+  }
+  alert(extensionlist[i].info);
+}
+function addex(id) {
+  let e;
+  for (let j = 0; j < extensionlist.length; j++) {
+    if (id == extensionlist[j].id) e = extensionlist[j];
+  }
+  for (let i = 0; i < props.length; i++) {
+    if (props[i].ext == id) {
+      for (let j = 0; j < states.length; j++) {
+        if (!props[i] .firstno || j != 0) $(props[i].id+states[j].num+'div').style.display = 'block';
+      }
+    }
+  }
+  $('addex:'+id).style.display = 'none';
+  $('delex:'+id).style.display = 'inline';
+  $('defex:'+id).style.display = 'inline';
+  $('exlabel:'+id).innerHTML += ' (добавлено)';
+  e.added = true;
+  landsUpdate();
+  let evopt = "";
+  for (let i = 0; i < eventlist.length; i++) {
+    let p = eventlist[i];
+    if (exadded(p.ext)) evopt += `<option value="${i}">${eventlist[i].name}</option>`;
+  }
+  for (let i = 0; i < events.length; i++) {
+    let val = $(`event${events[i].num}type`).value;
+    $(`event${events[i].num}type`).innerHTML = evopt;
+    $(`event${events[i].num}type`).value = val;
+  }
+  let arr = document.getElementsByClassName('ex_'+id);
+  for (let i = 0; i < arr.length; i++) arr[i].style.display = 'block';
+}
+function delex(id) {
+  let e;
+  for (let j = 0; j < extensionlist.length; j++) {
+    if (id == extensionlist[j].id) e = extensionlist[j];
+  }
+  if (confirm(`Вы точно хотите удалить дополнение '${e.name}' со всеми свойствами, чьё значение после нельзя будет восстановить?`)) {
+    for (let i = 0; i < props.length; i++) {
+      if (props[i].ext == id && (!props.firstno || i != 0)) {
+        for (let j = 0; j < states.length; j++) {
+          if (!props[i] .firstno || j != 0) {
+            $(props[i].id+states[j].num+'div').style.display = 'none';
+            $(props[i].id+states[j].num).value = props[i].default;
+          }
+        }
+      }
+    }
+    $('addex:'+id).style.display = 'inline';
+    $('delex:'+id).style.display = 'none';
+    $('defex:'+id).style.display = 'none';
+    $('defex:'+id).checked = false;
+    $('defex:'+id).onchange();
+    $('exlabel:'+id).innerHTML = `<b>${e.name}</b>`;
+    e.added = false;
+    landsUpdate();
+    let evopt = "";
+    for (let i = 0; i < eventlist.length; i++) {
+      let p = eventlist[i];
+      if (exadded(p.ext)) evopt += `<option value="${i}">${eventlist[i].name}</option>`;
+    }
+    for (let i = 0; i < events.length; i++) {
+      let val = $(`event${events[i].num}type`).value;
+      $(`event${events[i].num}type`).innerHTML = evopt;
+      $(`event${events[i].num}type`).value = val;
+    }
+    let arr = document.getElementsByClassName('ex_'+id);
+    for (let i = 0; i < arr.length; i++) arr[i].style.display = 'none';
+  }
+}
+function exadded(id) {
+  for (let j = 0; j < extensionlist.length; j++) {
+    if (id == extensionlist[j].id) return extensionlist[j].added;
+  }
+  return true;
+}
+{
+  for (let i = 0; i < extensionlist.length; i++) {
+    let e = extensionlist[i];
+    let div = document.createElement('div');
+    let add = localStorage.getItem(`defextensions.${e.id}`);
+    div.innerHTML = `<button class="addex" id="addex:${e.id}" onclick="addex('${e.id}');">+</button>
+    <label for="extensions:attack" class="label" id="exlabel:${e.id}" style="color: ${e.color};"><b>${e.name}</b></label>
+    <button class="exinfo"><img src="assets/info.svg" height="8" onclick="infex('${e.id}');"></button>
+    <button id="delex:${e.id}" style="background-color: #00000000; border: none; display: none;" onclick="delex('${e.id}');"><img src="assets/delete.svg" height="12"></button>
+    <input type="checkbox" id="defex:${e.id}" style="display: none;" onchange="localStorage.setItem('defextensions.${e.id}', this.checked ? 'true':'');"${add ? ' checked':''}>`;
+    $('extensionsdiv').appendChild(div);
+    if (add) addex(e.id);
+  }
 }
 newState("здоровые", "#00a000");
 if (sessionStorage.getItem("epidemic_simulator_open")) {

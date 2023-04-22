@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=900px, user-scalable=yes">
-  <title>Симулятор эпидемии - помощь и примеры</title>
+  <title>Симулятор эпидемии - помощь</title>
   <link rel="icon" href="assets/icon.svg">
   <style>
     a {
@@ -314,52 +314,9 @@
       <p>Живой пример:</p>
       <iframe src="https://megospc.github.io/epidemic_simulator_2/game.html" width="300" height="150" style="border: 2px solid #808080"></iframe>
     </div>
-    <div id="examples"></div>
   </article>
   <p id="sourcep" onclick="window.open('source.html');">Исходный код <img src="assets/source.svg" height="5"></p>
   <p id="aboutp" onclick="window.open('about.html');">О программе</p>
   <p id="logsp" onclick="window.open('logs.html');">Просмотр логов</p>
 </body>
 </html>
-<script>
-  var num = 0;
-  var examples = document.getElementById('examples');
-  example("covid-19"); //18-02-2023
-  example("столбняк"); //18-02-2023
-  example("телепорт"); //18-02-2023
-  example("грипп_vs_covid-19"); //18-02-2023
-  example("магнит"); //18-02-2023
-  example("столбняк_шевелюка"); //18-02-2023
-  example("малярия"); //18-02-2023
-  example("скарлатина"); //18-02-2023
-  example("бешенство"); //18-02-2023
-  example("призраки"); //18-02-2023
-  example("мокрое_дело"); //20-02-2023
-  example("центральная_больница"); //24-02-2023
-  example("клякса"); //25-02-2023
-  example("интро"); //25-02-2023
-  example("большой_крест"); //25-02-2023
-  example("дальняя_атака"); //25-02-2023
-  example("центральная_больница_2"); //25-02-2023
-  example("крепость_здоровых"); //25-02-2023
-  example("клякса"); //01-03-2023
-  example("бешенство_vs_паразиты"); //01-03-2023
-  example("насморк"); //01-03-2023
-  example("ангина"); //01-03-2023
-  example("микс_1"); //01-03-2023
-  example("микс_2"); //01-03-2023
-  example("микс_3"); //01-03-2023
-  example("микс_4"); //01-03-2023
-  example("микс_5"); //01-03-2023
-  example("столбняки"); //02-03-2023
-  example("мишень"); //02-03-2023
-  example("стенка"); //11-03-2023
-  example("центральная_больница_3"); //11-03-2023
-  example("большая_битва_2"); //11-03-2023
-  example("большая_битва_3"); //11-03-2023
-  example("столбнячки"); //11-03-2023
-  function example(name) {
-    examples.innerHTML += `<div><a href="examples/example${num}.json" download="${name}.json"><b>${name}.json</b></a></div>`;
-    num++;
-  }
-</script>

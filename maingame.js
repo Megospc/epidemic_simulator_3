@@ -173,19 +173,23 @@ class Cell { //основной класс
           if (((this.land.type == 3 && this.land.pow > rnd() && p.land.type == 3 && p.type == "cell") /* ландшафт "зона биологической опасности" */ || (this.x-this.st.zone <= p.x && this.x+this.st.zone >= p.x && this.y-this.st.zone <= p.y && this.y+this.st.zone >= p.y)) && ! (this.land.type == 14 && this.land.pow > rnd() && p.land.type == 14 && p.type == "cell") /* ландшафт "зона строгого контроля" */) { //проверка зоны заражения
             inzone++;
             if (this.st.stopping) p.speedc *= 1-this.st.stopping; //свойство "остановка"
-            if (rnd() < this.st.prob /* свойство "вероятность" */+(p.st.defect ?? 0 /* свойство "уязвимость" */)+(this.land.type == 5 ? this.land.pow:0 /* ландшафт "зона повышенного заражения */) && (p.st.protect ?? 0 /* свойство "защита" */)-(this.st.spikes ?? 0 /* свойство "шипы" */) < rnd()) { //проверка вероятности заражения
-              if (rnd() < this.st.killer) { //свойство "убийца"
-                p.dead();
+            if (this.infectable) {
+              if (rnd() < this.st.prob /* свойство "вероятность" */+(p.st.defect ?? 0 /* свойство "уязвимость" */)+(this.land.type == 5 ? this.land.pow:0 /* ландшафт "зона повышенного заражения */) && (p.st.protect ?? 0 /* свойство "защита" */)-(this.st.spikes ?? 0 /* свойство "шипы" */) < rnd()) { //проверка вероятности заражения
+                if (rnd() < this.st.killer) { //свойство "убийца"
+                  p.dead();
+                } else {
+              	if (!event.quared) {
+                    if (rnd() < p.st.potion) this.dead();
+                    p.toState(this.infect);
+                  }
+                }
+                for (let i = 0; i < this.st.farinf; i++) arr[Math.floor(random(arr.length))].toState(this.state); //свойство "дальняя атака"
               } else {
-                if (rnd() < p.st.potion) this.dead();
-                p.toState(this.infect);
-              }
-              for (let i = 0; i < this.st.farinf; i++) arr[Math.floor(random(arr.length))].toState(this.state); //свойство "дальняя атака"
-            } else {
-              if (rnd() < this.st.attacktrans && p.state != this.st.transform) { //свойство "переатака"
-                p.toState(this.st.transform == -1 ? Math.floor(random(states.length)):(this.st.transform ?? 0));
-              } else {
-                if (rnd() < p.st.cattack) this.toState(p.state); //свойство "контратака"
+                if (rnd() < this.st.attacktrans && p.state != this.st.transform) { //свойство "переатака"
+                  p.toState(this.st.transform == -1 ? Math.floor(random(states.length)):(this.st.transform ?? 0));
+                } else {
+                  if (rnd() < p.st.cattack) this.toState(p.state); //свойство "контратака"
+                }
               }
             }
           }
@@ -703,8 +707,9 @@ function frame() { //метод обработки и отрисовки кад�
           e.done = true;
         }
       }
+      if (event.quared && event.quared < timeNow()) event.quared = false; //событие "карантин"
       
-      //свойство "добавка"
+      //свойство "добавка":
       for (let i = 0; i < states.length; i++) {
         let ill = states[i];
         if (ill.addtime && ill.addcount && (ill.countadd == 0 || ill.added < ill.countadd)) {
@@ -925,14 +930,18 @@ function start() { //метод инициализации
   counts = [];
   mosq = [];
   stats = [];
+  events = [];
   frame_ = 0;
   randomed = 0;
   heals = 0;
   counter = { cells: 0, special: 0 };
   states[0].count = { cells: 0, special: 0 };
-  Object.assign(events, obj.events ?? []);
+  for (let i = 0; i < obj.events.length; i++) {
+    events[i] = Object.assign({}, obj.events[i]);
+  }
   Object.assign(gravitation, options.grav ?? { x: 0, y: 3 });
   event.splash = false;
+  event.quared = false;
   
   //заполнение массивов:
   for (let i = 1, j = 0; i < states.length; i++) {

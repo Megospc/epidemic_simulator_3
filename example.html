@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<script>
+  window.onload = async function() {
+    let i = new URL(location.href).searchParams.get('play');
+    if (i) {
+      let f = await fetch(`examples/example${i}.json`);
+      if (f.ok) {
+        let r = await f.text();
+        sessionStorage.setItem('epidemic_simulator_json', createJSON());
+        window.open('game.html?open=1');
+      }
+      else document.write('Ошибка при загрузке примера');
+    }
+  }
+</script>

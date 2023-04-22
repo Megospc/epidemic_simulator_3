@@ -1,3 +1,30 @@
+.ex_cells {
+  display: none;
+}
+.exinfo {
+  background-color: transparent;
+  border: none;
+}
+.addex {
+  margin-bottom: 10px;
+  font-size: 12px;
+  width: 20px;
+  height: 20px;
+  font-family: Monospace, sans-serif;
+  background: linear-gradient(to right, #f080a0, #ffa090);
+  border-radius: 3px;
+  border: 2px solid #f05050;
+  display: inline;
+}
+.extensions {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-family: Monospace, sans-serif;
+  background: linear-gradient(to right, #f080a0, #ffa090);
+  border-radius: 3px;
+  border: 2px solid #f05050;
+}
 #newevent {
   margin-bottom: 10px;
   font-size: 12px;
@@ -5,6 +32,22 @@
   background: linear-gradient(to right, #f0a0a0, #ff8080);
   border-radius: 3px;
   border: 2px solid #f05050;
+}
+#back {
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-family: Monospace, sans-serif;
+  background: linear-gradient(to right, #f0a0a0, #ff8080);
+  border-radius: 3px;
+  border: 2px solid #f05050;
+}
+#lsog {
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-family: Monospace, sans-serif;
+  background: linear-gradient(to right, #f0b0a0, #ffc080);
+  border-radius: 3px;
+  border: 2px solid #d09050;
 }
 .evselect {
   font-family: Monospace, sans-serif;
@@ -34,11 +77,6 @@
 #tosource {
   font-family: Monospace, sans-serif;
   font-size: 8px;
-}
-#lsog {
-  margin-bottom: 5px;
-  font-family: Monospace, sans-serif;
-  font-size: 12px;
 }
 #lssg {
   background-color: transparent;
@@ -182,15 +220,12 @@ input[type="checkbox"] {
   width: 500px;
   height: 200px;
   font-family: Monospace, sans-serif;
-  font-size: 12px
+  font-size: 12px;
+  border-radius: 5px;
+  border: 1px solid #300030;
 }
 input[type="file"] {
   margin-bottom: 10px;
-  font-family: Monospace, sans-serif;
-  font-size: 12px;
-}
-#back {
-  margin-bottom: 5px;
   font-family: Monospace, sans-serif;
   font-size: 12px;
 }

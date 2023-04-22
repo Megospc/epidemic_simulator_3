@@ -2,7 +2,7 @@
 ### **Добро пожаловать в «Симулятор Эпидемии 3»!**
 **«Симулятор Эпидемии»** — это модель представляющая взаимодействие болезний друг с другом.
 
-Версия: **3.1.5** *(20.04.2023)*
+Версия: **3.3.3** *(22.04.2023)*
 
 Запустить можно [тут ![](https://megospc.github.io/epidemic_simulator/assets/icon.svg "icon.svg")](https://megospc.github.io/epidemic_simulator_3 "GitHub Pages").
 
@@ -37,3 +37,5 @@
 [**2.6.2** (21.02.2023)](https://github.com/Megospc/epidemic_simulator_2 "GitHub")[![](https://megospc.github.io/epidemic_simulator/assets/icon.svg "icon.svg")](https://megospc.github.io/epidemic_simulator_2 "GitHub Pages")
 
 <u>**3.0.0** (19.04.2023)</u>
+
+<u>**3.1.5** (20.04.2023)</u>

@@ -1,4 +1,4 @@
-const version = "3.1.5"; //версия программы
+const version = "3.3.3"; //версия программы
 const fps = 30; //количество кадров в игровой секунде
 const lands = [ //массив цветов ландшафтов
   "#ffffff",
@@ -74,6 +74,7 @@ var started = false, pause = false; //"начата ли симуляция?" и
 var event = {}; //объект событий
 var music = new Audio("assets/music.mp3"); //музыка от zvukipro.com
 var goalFPS = fps*(options.showspeed ?? 1), fpsTime = 1000/goalFPS, maxFPS = fps; //переменные FPS
+obj.events = obj.events ?? [];
 
 stats.push({ perf: performance.now(), sum: options.count }); //сохранение первого кадра
 
@@ -387,4 +388,7 @@ event.epidemic = function(e) { //событие "эпидемия"
       if (rnd() < e.pow && rnd() >= arr[i].st.antievent) arr[i].toState(e.state == -1 ? Math.floor(random(states.length)):e.state);
     }
   }
+};
+event.quar = function(e) { //событие "карантин"
+  event.quared = timeNow()+e.duration;
 };
