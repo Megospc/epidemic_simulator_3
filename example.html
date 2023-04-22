@@ -5,9 +5,10 @@
     if (i) {
       let f = await fetch(`examples/example${i}.json`);
       if (f.ok) {
-        let r = await f.text();
-        sessionStorage.setItem('epidemic_simulator_json', r);
-        window.open('https://megospc.github.io/epidemic_simulator_3/game.html?open=1', '_self');
+        let r = await f.json();
+        r.options.music = false;
+        sessionStorage.setItem('epidemic_simulator_json', JSON.stringify(r));
+        location.href = 'game.html?open=1';
       }
       else document.write('Ошибка при загрузке примера');
     }

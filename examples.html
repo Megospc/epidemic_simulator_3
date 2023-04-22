@@ -9,6 +9,10 @@
     #examples {
       width: 600px;
     }
+    b {
+      font-family: Monospace, sans-serif;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
@@ -56,8 +60,8 @@
   ];
   example(arr[0]);
   function example(name) {
-    examples.innerHTML += `<div><b>${name}</b><iframe id="iframe${num}" width="160" height="80" src="example.html?play=${num}"></iframe></div>`;
-    document.getElementById(`iframe${num}`).addEventListener('load', () => example(arr[num]));
+    examples.innerHTML += `<div><div><b>${name}</b><div><iframe id="iframe${num}" width="500" height="250" src="example.html?play=${num}"></iframe></div>`;
+    if (num < arr.length-1) document.getElementById(`iframe${num}`).addEventListener('load', () => example(arr[num]));
     num++;
   }
 </script>
