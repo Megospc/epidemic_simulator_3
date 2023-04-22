@@ -8,6 +8,7 @@
         let r = await f.text();
         sessionStorage.setItem('epidemic_simulator_json', createJSON());
         window.open('game.html?open=1');
+        alert('ok');
       }
       else document.write('Ошибка при загрузке примера');
     }
