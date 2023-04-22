@@ -11,10 +11,11 @@
     }
     a {
       font-size: 18px;
+      color: #0000ff;
     }
     img {
-      width: 20px;
-      height: 20px;
+      height: 12px;
+      margin-left: 10px;
     }
   </style>
 </head>
@@ -64,7 +65,7 @@
   ];
   example(arr[0]);
   function example(name) {
-    examples.innerHTML += `<div><a href="example.html?play=${num}"><b>${name}</b></a></div>`;
+    examples.innerHTML += `<div><a href="example.html?play=${num}"><b>${name}</b></a><a href="examples/example${num}.json" download="${name}.json"><img src="assets/download.svg"></a></div>`;
     num++;
     if (num < arr.length-1) example(arr[num]);
   }
