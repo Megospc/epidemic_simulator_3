@@ -916,7 +916,7 @@ ${frames}`;
     for (let i = 0; i < arr.length; i++) {
       let p = arr[i];
       if (p.y >= y_-zone && p.y <= y_+zone && p.x >= x_-zone && p.x <= x_+zone) {
-        p.toState(options.healto);
+        p.toState(options.healto ?? 0);
       }
     }
     heals++;

@@ -6,16 +6,20 @@
   <meta name="viewport" content="width=600px, user-scalable=yes">
   <link rel="icon" href="assets/icon.svg">
   <style>
-    #examples {
-      width: 600px;
-    }
-    b {
+    a, h1 {
       font-family: Monospace, sans-serif;
+    }
+    a {
       font-size: 18px;
+    }
+    img {
+      width: 20px;
+      height: 20px;
     }
   </style>
 </head>
 <body>
+  <h1>Примеры</h1>
   <div id="examples"></div>
 </body>
 </html>
@@ -60,8 +64,8 @@
   ];
   example(arr[0]);
   function example(name) {
-    examples.innerHTML += `<div><div><b>${name}</b><div><iframe id="iframe${num}" width="500" height="250" src="example.html?play=${num}"></iframe></div>`;
-    if (num < arr.length-1) document.getElementById(`iframe${num}`).addEventListener('load', () => example(arr[num]));
+    examples.innerHTML += `<div><a href="example.html?play=${num}"><b>${name}</b></a></div>`;
     num++;
+    if (num < arr.length-1) example(arr[num]);
   }
 </script>

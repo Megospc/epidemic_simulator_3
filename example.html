@@ -6,7 +6,16 @@
       let f = await fetch(`examples/example${i}.json`);
       if (f.ok) {
         let r = await f.json();
-        r.options.music = false;
+        let l = localStorage.getItem("epidemic_simulator_settings");
+        r.options.showspeed = 1;
+        if (l) {
+          let s = JSON.parse(l);
+          if (navigator.vibrate && s.vibrate) r.options.vibrate = s.vibrate;
+          else r.options.vibrate = false;
+          r.options.resolution = s.resolution;
+          r.options.graphmove = s.graphmove;
+          r.options.biggraph = s.biggraph;
+        }
         sessionStorage.setItem('epidemic_simulator_json', JSON.stringify(r));
         location.href = 'game.html?open=1';
       }
