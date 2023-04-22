@@ -7,8 +7,7 @@
       if (f.ok) {
         let r = await f.text();
         sessionStorage.setItem('epidemic_simulator_json', r);
-        window.open('game.html?open=1');
-        alert('ok');
+        window.open('https://megospc.github.io/epidemic_simulator_3/game.html?open=1', '_self');
       }
       else document.write('Ошибка при загрузке примера');
     }
