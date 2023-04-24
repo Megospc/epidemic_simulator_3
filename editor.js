@@ -16,7 +16,9 @@ const lands = [
   { color: "#a05000", bcolor: "#a04000", name: "зона строгого конроля" },
   { color: "#a07800", bcolor: "#907000", name: "человеческая зона", ext: "cells" },
   { color: "#0060a0", bcolor: "#005090", name: "научная зона", ext: "move" },
-  { color: "#60c0d0", bcolor: "#50b0c0", name: "леденая зона", ext: "move" }
+  { color: "#60c0d0", bcolor: "#50b0c0", name: "леденая зона", ext: "move" },
+  { color: "#50a000", bcolor: "#409000", name: "драконья зона", ext: "deads" },
+  { color: "#f0f080", bcolor: "#d0d070", name: "светлая зона", ext: "deads" }
 ];
 const eventlist = [
   { name: "большой взмес", id: "teleporto", props: [], ext: "move" },
@@ -37,12 +39,25 @@ const eventlist = [
     { id: "x", text: "X:", check: [-5, 5, false], form: "${num}", aform: "${num}" },
     { id: "y", text: "Y:", check: [-5, 5, false], form: "${num}", aform: "${num}" }
   ], ext: "cells" },
+  { name: "гнев драконов", id: "dragon", props: [
+    { id: "duration", text: "длительность:", check: [0, 120, false], form: "${num}*1000", aform: "${num}/1000" }
+  ], ext: "deads" },
+  { name: "наводнение", id: "water", props: [
+    { id: "pow", text: "сила:", check: [0, 100, false], form: "${num}/100", aform: "${num}*100" }
+  ], ext: "deads" },
+  { name: "лекарство", id: "healer", props: [
+    { id: "pow", text: "сила:", check: [0, 100, false], form: "${num}/100", aform: "${num}*100" },
+    { id: "state", text: "состояние:", check: [1, 'states.length', true], form: "${num}-1", aform: "${num}+1" }
+  ] },
+  { name: "ночь", id: "night", props: [
+    { id: "pow", text: "сила:", check: [0, 100, false], form: "${num}/100", aform: "${num}*100" }
+  ], ext: "deads" },
 ];
 const props = [
   { title: "Коэффициент скорости:", type: "num", id: "speed", check: [0, 3, false], default: 1, form: "${num}", aform: "${num}", ext: "move" },
   { title: "Вероятность излечения(%):", type: "num", id: "heal", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
-  { title: "Трансформация в:", type: "sel", id: "transform", select: "arr = ['случайное']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}-1", aform: "${num}+1", ext: "attack" },
-  { title: "Заражение в:", type: "sel", id: "infect", select: "arr = ['себя']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}", aform: "${num}", ext: "attack" },
+  { title: "Трансформация в:", type: "sel", id: "transform", select: "arr = ['случайное']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", default: 1, form: "${num}-1", aform: "${num}+1", ext: "attack" },
+  { title: "Заражение в:", type: "sel", id: "infect", select: "arr = ['себя']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}", default: 0, aform: "${num}", ext: "attack" },
   { title: "Паразит (0 = без паразита):", type: "num", id: "parasite", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", exts: "deads" },
   { title: "Инфекция после смерти(с):", type: "num", id: "after", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
   { title: "Переатака(%):", type: "num", id: "attacktrans", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
@@ -74,8 +89,21 @@ const props = [
   { title: "Все за одного", type: "chk", id: "allone", default: false, ext: "deads" },
   { title: "Невидимка", type: "chk", id: "invisible", default: false },
   { title: "Водобоязнь", type: "chk", id: "waterscary", default: false, ext: "deads" },
+  { title: "Страх темноты", type: "chk", id: "darkscary", default: false, ext: "deads" },
   { title: "Строитель", type: "chk", id: "builder", default: false, ext: "deads" }
 ];
+var setdef = new Map([
+  ["ratcount", 0],
+  ["ratspeed", 7],
+  ["ballcount", 0],
+  ["balljump", 80],
+  ["mosquitospeed", 7],
+  ["mosquitoprob", 50],
+  ["mosquitotime", 3],
+  ["mosquitozone", 1],
+  ["gravx", 0],
+  ["gravy", 3]
+]);
 const extensionlist = [
   { id: "attack", name: "Атака", info: `Ландшафты:
 - зона повышенного заражения
@@ -119,11 +147,18 @@ const extensionlist = [
 События:
 - крысиный всплеск
 - смена гравитации
+
+Виды клеток:
+- крысы
+- москиты
+- шары
 `, color: "#80f080" },
   { id: "deads", name: "Смерти", info: `Ландшафты:
 - взрывоопасная зона
 - лагерьная зона
 - морская зона
+- драконья зона
+- светлая зона
 
 Свойства:
 - вероятность излечения
@@ -135,9 +170,13 @@ const extensionlist = [
 - все за одного
 - водобоязнь
 - строитель
+- страх темноты
 
 События:
 - взрыв
+- гнев драконов
+- наводнение
+- ночь
 `, color: "#f0d080" }
 ];
 var lastnum = 0, lastev = 0;
@@ -389,7 +428,6 @@ function newState(name, color) {
     <button style="background-color: #00000000; border: none; display: inline;" onclick="copystate(${num});"><img src="assets/copy.svg" height="12"></button>`}
       <input type="checkbox" id="hiddenstat${num}" onchange="updateStates();" style="display: inline;" checked>
       <input type="checkbox" id="hiddengraph${num}" onchange="updateStates();" style="display: inline;" ${num == 0 ? "":"checked"}>
-      <b id="points${num}" class="label" style="color: ${color};">0</b>
     </div>
     <input type="color" id="color${num}" class="colorsel" value="${color}">
     <button class="color" style="background-color: #a00000; border-color: #900000;" onclick="$('color${num}').value='#a00000'; updateStates();"></button>
@@ -474,7 +512,6 @@ function updateState(n) {
     name: $(`name${i}`).value,
     div: states[n].div,
     num: i,
-    points: 0,
     prob: Number($(`prob${i}`).value)/100,
     zone: Number($(`zone${i}`).value),
     initial: n == 0 ? null:Number($(`initial${i}`).value),
@@ -503,14 +540,6 @@ function updateState(n) {
   }
   if (n != 0) obj.position = $(`pos${i}`).checked ? [ { x: (Number($(`x${i}`).value)+100)*((options.size-5)/200)+2.5, y: (Number($(`y${i}`).value)+100)*((options.size-5)/200)+2.5 } ]:null;
   else obj.position = null;
-  obj.points += (obj.zone**2*(obj.prob+(obj.attacktrans/4)+obj.protect+(obj.spikes/3)+(obj.cattack/4)-(obj.defect/3)))*(Math.min(obj.time ? obj.time/1000:240, obj.parasite ? obj.parasite/500:240)+(obj.after/500)-(obj.rest/500))/(obj.allone ? 1000:1)/(obj.infect ? 100:1)*(obj.initial || obj.ratinit || (obj.addcount && obj.addtime) || i == 0 ? 1:0);
-  obj.points += obj.protect/100;
-  if (obj.robber && options.quar) obj.points += options.size/options.size;
-  if (n != 0) obj.points += obj.initial+(obj.ratinit*2)+(obj.mosquito*options.mosquitotime*(options.mosquitozone**2)*options.mosquitoprob/1000);
-  if (obj.addtime && i != 0) obj.points += obj.addcount/obj.addtime*48000;
-  obj.points = Math.floor(obj.points);
-  $(`points${i}`).innerHTML = obj.points;
-  $(`points${i}`).style.color = obj.color;
   $(`num${i}`).style.color = obj.color;
   $(`num${i}`).innerHTML = n+1;
   states[n] = obj;
@@ -695,6 +724,18 @@ function readgame(json) {
                 [ 0, 0, 0, 0, 0, 0, 0 ]
               ], res: 7 };
             }
+            for (let y = 0; y < obj.landscape.res; y++) {
+              for (let x = 0; x < obj.landscape.res; x++) {
+                let l = obj.landscape.type[y][x];
+                if (l >= 0 && l < lands.length) {
+                  let p = lands[l];
+                  if (!exadded(p.ext)) {
+                    log(`Загрузка дополнения '${p.ext}'...`);
+                    addex(p.ext);
+                  }
+                } else close();
+              }
+            }
             log("Проверка events...");
             if (obj.events) {
               log("events существует.");
@@ -721,11 +762,19 @@ function readgame(json) {
               for (let j = 0; j < props.length; j++) {
                 let p = props[j];
                 let num = st[p.id];
-                if (p.type == "num" && (!p.firstno || i != 0)) $(`${p.id+i}`).value = eval(`eval(\`${p.aform}\`);`) ?? p.default;
-                if (p.type == "chk") $(`${p.id+i}`).checked = p.invert ? !st[p.id]:st[p.id];
-                if (num != p.default && !exadded(p.ext)) {
-                  log(`Загрузка дополнения '${p.ext}'...`);
-                  addex(p.ext);
+                if ((p.type == "num" || p.type == "sel") && (!p.firstno || i != 0)) {
+                  $(`${p.id+i}`).value = eval(`eval(\`${p.aform}\`);`) ?? p.default;
+                  if (eval(`eval(\`${p.aform}\`);`) != p.default && !exadded(p.ext) && typeof num != 'undefined') {
+                    log(`Загрузка дополнения '${p.ext}'...`);
+                    addex(p.ext);
+                  }
+                }
+                if (p.type == "chk") {
+                  $(`${p.id+i}`).checked = p.invert ? !num:num;
+                  if ((p.invert ? !num:num) != p.default && !exadded(p.ext)) {
+                    log(`Загрузка дополнения '${p.ext}'...`);
+                    addex(p.ext);
+                  }
                 }
               }
               if (i != 0 && st.position) {
@@ -740,6 +789,10 @@ function readgame(json) {
             lastevent = 0;
             for (let i = 0; i < obj.events.length; i++) {
               let e = obj.events[i];
+              if (!exadded(e.ext)) {
+                log(`Загрузка дополнения '${p.ext}'...`);
+                addex(p.ext);
+              }
               let ps;
               newevent();
               let type = 0;
@@ -766,48 +819,26 @@ function readgame(json) {
             $('name').value = name;
             description = obj.description ?? "";
             $('description').value = description;
-            options = {
-              size: obj.options.size,
-              count: obj.options.count,
-              speed: obj.options.speed,
-              quar: obj.options.quar ?? 0,
-              stop: false,
-              music: options.music,
-              turbo: options.turbo,
-              resolution: options.resolution,
-              mosquitospeed: obj.options.mosquitospeed ?? 7,
-              mosquitotime: obj.options.mosquitotime ?? 3000,
-              mosquitoprob: obj.options.mosquitoprob ?? 0.5,
-              mosquitozone: obj.options.mosquitozone ?? 1,
-              healzone: obj.options.healzone ?? 30,
-              healto: obj.options.healto ?? 0,
-              showspeed: options.showspeed,
-              biggraph: options.biggraph,
-              graphmove: options.graphmove,
-              ratcount: obj.options.ratcount ?? 0,
-              ratspeed: obj.options.ratspeed ?? 7,
-              vibrate: options.vibrate,
-              grav: obj.options.grav ?? { x: 0, y: 3 },
-              ballcount: obj.options.ballcount ?? 0,
-              balljump: obj.options.balljump ?? 0.8
-            };
-            $('size').value = options.size;
-            $('count').value = options.count;
-            $('speed').value = options.speed;
-            $('quar').value = options.quar;
-            $('mosquitospeed').value = options.mosquitospeed;
-            $('mosquitotime').value = options.mosquitotime/1000;
-            $('mosquitoprob').value = options.mosquitoprob*100;
-            $('mosquitozone').value = options.mosquitozone;
-            $('healzone').value = options.healzone;
-            $('healto').value = options.healto+1;
-            $('music').checked = options.music;
-            $('ratcount').value = options.ratcount;
-            $('ratspeed').value = options.ratspeed;
-            $('ballcount').value = options.ballcount;
-            $('balljump').value = options.balljump*100;
-            $('gravx').value = options.grav.x;
-            $('gravy').value = options.grav.y;
+            function setval(id, val) {
+              $(id).value = val;
+              $(id).onchange();
+            }
+            setval('size', obj.options.size);
+            setval('count', obj.options.count);
+            setval('speed', obj.options.speed);
+            setval('quar', obj.options.quar ?? 0);
+            setval('mosquitospeed', obj.options.mosquitospeed ?? 7);
+            setval('mosquitotime', (obj.options.mosquitotime ?? 3000)/1000);
+            setval('mosquitoprob', (obj.options.mosquitoprob ?? 0.5)*100);
+            setval('mosquitozone', obj.options.mosquitozone ?? 1);
+            setval('healzone', obj.options.healzone ?? 30);
+            setval('healto', (obj.options.healto ?? 0)+1);
+            setval('ratcount', obj.options.ratcount ?? 0);
+            setval('ratspeed', obj.options.ratspeed ?? 7);
+            setval('ballcount', obj.options.ballcount ?? 0);
+            setval('balljump', (obj.options.balljump ?? 0.8)*100);
+            setval('gravx', obj.options.grav.x ?? 0);
+            setval('gravy', obj.options.grav.y ?? 3);
             landscape = {
               type: obj.landscape.type,
               pow: obj.landscape.pow,
@@ -944,6 +975,24 @@ function delex(id) {
     }
     let arr = document.getElementsByClassName('ex_'+id);
     for (let i = 0; i < arr.length; i++) arr[i].style.display = 'none';
+    arr = document.getElementsByClassName('ex'+id);
+    for (let i = 0; i < arr.length; i++) {
+      arr[i].value = setdef.get(arr[i].id);
+      arr[i].onchange(); 
+    }
+    for (let i = 0; i < events.length; i++) {
+      let e = events[i], ev;
+      for (let j = 0; j < eventlist.length; j++) {
+        if (eventlist[j].id == e.type) ev = eventlist[j];
+      }
+      if (ev.ext == id) deleteevent(e.num);
+    }
+    for (let y = 0; y < landscape.res; y++) {
+      for (let x = 0; x < landscape.res; x++) {
+        if (lands[landscape.type[y][x]].ext == id) landscape.type[y][x] = 0;
+      }
+    }
+    landrender();
   }
 }
 function exadded(id) {

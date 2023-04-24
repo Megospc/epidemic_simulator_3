@@ -20,8 +20,9 @@
   </style>
 </head>
 <body>
-  <h1>Примеры</h1>
-  <div id="examples"></div>
+  <h1 style="margin-bottom: 5px;">Примеры</h1>
+  <a href="index.html" style="font-size: 8px;"><b>главная страница</b></a>
+  <div id="examples" style="margin-top: 20px;"></div>
 </body>
 </html>
 <script>
@@ -65,8 +66,8 @@
   ];
   example(arr[0]);
   function example(name) {
-    examples.innerHTML += `<div><a href="example.html?play=${num}"><b>${name}</b></a><a href="examples/example${num}.json" download="${name}.json"><img src="assets/download.svg"></a></div>`;
+    examples.innerHTML += `<div><a href="example.html?play=${num}" target="_blank"><b>${name}</b></a><a href="examples/example${num}.json" download="${name}.json"><img src="assets/download.svg"></a></div>`;
     num++;
-    if (num < arr.length-1) example(arr[num]);
+    if (num < arr.length) example(arr[num]);
   }
 </script>

@@ -1,4 +1,4 @@
-const version = "3.3.13"; //версия программы
+const version = "3.5.7"; //версия программы
 const fps = 30; //количество кадров в игровой секунде
 const lands = [ //массив цветов ландшафтов
   "#ffffff",
@@ -18,7 +18,9 @@ const lands = [ //массив цветов ландшафтов
   "#a05000",
   "#a07800",
   "#0060a0",
-  "#60c0d0"
+  "#60c0d0",
+  "#50a000",
+  "#f0f080"
 ];
 
 //получение JSON симуляции:
@@ -64,7 +66,7 @@ var cw, ch, cc, cx, cy, interval; //характеристики холста и
 var canvas = document.getElementById('canvas'); //DOM холста
 var ctx = canvas.getContext('2d'); //контекст холста
 var arr = [], counts = [], mosq = [], sorted = [], stats = []; //массивы
-var lastTime = 0, frame_ = 0, date = 0, randomed = 0, heals = 0; //счётчики и другое
+var lastTime = 0, frame = 0, date = 0, randomed = 0, heals = 0; //счётчики и другое
 var obj = JSON.parse(json); //объект симуляции
 var states = obj.states, options = obj.options, style = obj.style; //быстрый доступ к полям объекта
 var landscape = obj.landscape ?? { type: [[0]], pow: [[0]], res: 1 }, events = [], gravitation = {}; //быстрый доступ к ландшафтам, событиям и гравитации
@@ -72,7 +74,7 @@ var scale = 420/options.size; //масштаб поля
 var counter = { cells: 0, special: 0 }; //суммарный счётчик
 var started = false, pause = false; //"начата ли симуляция?" и пауза
 var event = {}; //объект событий
-var music = new Audio("assets/music.mp3"); //музыка от zvukipro.com
+var music = new Audio("assets/music.mp3"); //музыка (от zvukipro.com)
 var goalFPS = fps*(options.showspeed ?? 1), fpsTime = 1000/goalFPS, maxFPS = fps; //переменные FPS
 obj.events = obj.events ?? [];
 
@@ -143,7 +145,7 @@ function Y(y) {
 }
 
 function timeNow() { //игровое время
-  return frame_/fps*1000;
+  return frame/fps*1000;
 }
 function vib(len) { //метод вибрации
   if (options.vibrate && navigator.vibrate) navigator.vibrate(len);
@@ -240,9 +242,9 @@ function testCordMinMax(c, size) {
 }
 function biggraph() { //отрисовка большого графика
   let max = 2;
-  let start = style.graphmove ? (frame_ < 290 ? 0:frame_-290):0;
+  let start = style.graphmove ? (frame < 290 ? 0:frame-290):0;
   let timeinc = start*(1000/fps);
-  let size = style.graphmove ? (frame_ < 290 ? frame_:290):frame_;
+  let size = style.graphmove ? (frame < 290 ? frame:290):frame;
   for (let t = start; t < counts.length; t++) {
     for (let i = 0; i < states.length; i++) {
       if (!(states[i].hidden || states[i].hiddengraph)) {
@@ -274,7 +276,7 @@ function biggraph() { //отрисовка большого графика
   ctx.fillRect(X(820), Y(15), X(2), Y(195));
   ctx.fillText(`${flr(timeNow()/1000)}`, X(815), Y(235), X(30));
   ctx.lineWidth = X(3);
-  if (frame_ > 0) {
+  if (frame > 0) {
     for (let i = 0; i < states.length; i++) {
       if (!(states[i].hidden || states[i].hiddengraph)) {
         ctx.beginPath();
@@ -295,9 +297,9 @@ function biggraph() { //отрисовка большого графика
 }
 function graph() {
   let max = 2;
-  let start = style.graphmove ? (frame_ < 160 ? 0:frame_-160):0;
+  let start = style.graphmove ? (frame < 160 ? 0:frame-160):0;
   let timeinc = start*(1000/fps);
-  let size = style.graphmove ? (frame_ < 160 ? frame_:160):frame_;
+  let size = style.graphmove ? (frame < 160 ? frame:160):frame;
   for (let t = start; t < counts.length; t++) {
     for (let i = 0; i < states.length; i++) {
       if (!(states[i].hidden || states[i].hiddengraph)) {
@@ -327,7 +329,7 @@ function graph() {
   ctx.fillRect(X(830), Y(15), X(1), Y(90));
   ctx.fillText(`${flr((timeNow()-timeinc)/1000/20*18+(timeinc/1000))}`, X(830), Y(115), X(30));
   ctx.lineWidth = X(2);
-  if (frame_ > 0) {
+  if (frame > 0) {
     for (let i = 0; i < states.length; i++) {
       if (!(states[i].hidden || states[i].hiddengraph)) {
         ctx.beginPath();
@@ -348,7 +350,8 @@ function graph() {
 }
 event.teleporto = function() { //событие "большой взмес"
   vib(50);
-  event.splash = frame_;
+  event.splashcolor = "#ffffff";
+  event.splash = frame;
   for (let i = 0; i < arr.length; i++) {
     if (rnd() >= arr[i].st.antievent) {
       arr[i].x = random(options.size-style.size)+(style.size/2);
@@ -367,7 +370,8 @@ event.boom = function(e) { //событие "взрыв"
 event.rats = function(e) { //событие "крысиный всплеск"
   if (e.pow) {
     vib(50);
-    event.splash = frame_;
+    event.splashcolor = "#ffffff";
+    event.splash = frame;
     for (let i = 0; i < arr.length; i++) {
       if (arr[i].type == "cell" && rnd() <
 e.pow && rnd() >= arr[i].st.antievent) {
@@ -391,4 +395,44 @@ event.epidemic = function(e) { //событие "эпидемия"
 };
 event.quar = function(e) { //событие "карантин"
   event.quared = timeNow()+e.duration;
+};
+event.dragon = function(e) { //событие "гнев драконов"
+  vib(50);
+  event.splashcolor = "#a08040";
+  event.splash = frame;
+  event.dragoned = timeNow()+e.duration;
+  event.dragonfire = [];
+  for (let y = 0; y < landscape.res; y++) {
+    for (let x = 0; x < landscape.res; x++) {
+      event.dragonfire.push({ now: random(255), next: random(255) });
+    }
+  }
+};
+event.water = function(e) { //событие "наводнение"
+  event.splashcolor = "#4040a0";
+  event.splash = frame;
+  if (e.pow) {
+    vib(50);
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].type == "cell" && rnd() < e.pow && rnd() >= arr[i].st.antievent && arr[i].st.waterscary) arr[i].dead();
+    }
+  }
+};
+event.healer = function(e) { //событие "лекарство"
+  if (e.pow) {
+    vib(50);
+    for (let i = 0; i < arr.length; i++) {
+      if (rnd() < e.pow && rnd() >= arr[i].st.antievent && arr[i].state == e.state) arr[i].toState(0);
+    }
+  }
+};
+event.night = function(e) { //событие "ночь"
+  event.splashcolor = "#000020";
+  event.splash = frame;
+  if (e.pow) {
+    vib(50);
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].type == "cell" && rnd() < e.pow && rnd() >= arr[i].st.antievent && arr[i].st.darkscary && (arr[i].land.type != 19 || arr[i].land.pow <= rnd())) arr[i].dead();
+    }
+  }
 };

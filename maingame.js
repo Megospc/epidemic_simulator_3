@@ -56,7 +56,7 @@ class Cell { //основной класс
       
       this.state = state;
       this.time = timeNow();
-      this.frame = frame_;
+      this.frame = frame;
       this.st = states[state];
       this.infect = this.st.infect ? this.st.infect-1:this.state;
       
@@ -97,7 +97,7 @@ class Cell { //основной класс
         //обновление:
         this.alive = false;
         this.time = timeNow();
-        this.frame = frame_;
+        this.frame = frame;
         
         if (!this.st.after) {
           this.infectable = false;
@@ -124,6 +124,7 @@ class Cell { //основной класс
     if (this.alive) {
       //обработка ландшафтов:
       if (this.land.type == 1 && this.land.pow > rnd()) this.dead(); //"отравленная зона"
+      if (this.land.type == 18 && this.land.pow > rnd() && event.dragoned) this.dead(); //"драконья зона"
       if (this.land.type == 12 && this.land.pow/(this.st.builder ? 100:1) > rnd()) this.dead(); //"строительная зона"
       if (this.state && this.land.type == 2 && this.land.pow > rnd()) this.toState(0); //"санитарная зона"
       if (this.land.type == 7 && this.land.pow > rnd() && this.st.allergy != -1) this.toState(this.st.allergy); //"аллергенная зона"
@@ -135,7 +136,7 @@ class Cell { //основной класс
       if (this.land.type == 10 && this.land.pow/1000 > rnd()) explosion(); //"взрывоопасная зона"
       if (this.land.type == 16 && this.land.pow > rnd()) {
         this.teleportated = { st: this.st, x: this.x, y: this.y };
-        this.frame = frame_;
+        this.frame = frame;
         this.x = random(options.size-style.size)+(style.size/2);
         this.y = random(options.size-style.size)+(style.size/2);
       } //"научная зона"
@@ -159,7 +160,7 @@ class Cell { //основной класс
       else this.relived = true; //уже пытался "возродиться"
     }
     
-    if ((this.infectable || (this.st.magnet && this.st.magnetpow && this.alive) || (this.st.parasite && this.alive)) && this.frame !== frame_) { //проверка "заражения"
+    if ((this.infectable || (this.st.magnet && this.st.magnetpow && this.alive) || (this.st.parasite && this.alive)) && this.frame !== frame) { //проверка "заражения"
       let inzone = 0; //счётчик клеток в зоне заражения
       for (let i = 0; i < arr.length; i++) { //проверка всех клеток
         let p = arr[i];
@@ -256,8 +257,8 @@ class Cell { //основной класс
           ctx.fillRect(X((o.x-(style.size/2))*scale+15), Y((o.y-(style.size/2))*scale+15), X(style.size*scale), Y(style.size*scale));
         };
         if (this.teleportated) { //отрисовка "телепортации"
-          if (frame_ < this.frame+5 && style.anim && this.frame !== false) {
-            let fram = frame_-this.frame;
+          if (frame < this.frame+5 && style.anim && this.frame !== false) {
+            let fram = frame-this.frame;
             let cellTrans = this.st.transparent ? 128:255;
             let trans = cellTrans*fram/5;
             ctx.fillStyle = this.st.color + ahex(trans);
@@ -274,8 +275,8 @@ class Cell { //основной класс
             ctx.fillStyle = this.st.color + ahex(trans);
             ctx.fillRect(X((this.x-(style.size))*scale+15), Y((this.y-(style.size))*scale+15), X(style.size*2*scale), Y(style.size*2*scale));
           } else {
-            if (frame_ < this.frame+5 && style.chanim && this.frame !== false) { //отрисовка заражения
-              let fram = frame_-this.frame;
+            if (frame < this.frame+5 && style.chanim && this.frame !== false) { //отрисовка заражения
+              let fram = frame-this.frame;
               let cellTrans = this.st.transparent ? 128:255;
               let trans = ahex(cellTrans*(5-fram)/10);
               let size = 2*style.size;              
@@ -285,8 +286,8 @@ class Cell { //основной класс
           }
         }
       } else {
-        if (frame_ < this.frame+15 && style.deadanim) { //отрисовка "смерти"
-          let fram = frame_-this.frame;
+        if (frame < this.frame+15 && style.deadanim) { //отрисовка "смерти"
+          let fram = frame-this.frame;
           let size = (fram/7.5+1)*style.size;
           let cellTrans = this.st.transparent ? 128:255;
           let trans = ahex(cellTrans*(15-fram)/15);
@@ -304,10 +305,10 @@ class Cell { //основной класс
           ctx.fillStyle = c;
           ctx.fillRect(X((x_+(style.size*x))*scale+15), Y((y_+(style.size*y))*scale+15), X(s*style.size*scale), Y(s*style.size*scale));
         };
-        fill(-0.75, -0.75, 0.6, this.x, this.y, this.st.color + ahex(cellTrans/3*(style.anim ? Math.sin(degToRad(frame_*30))+1:1)));
-        fill(0.75, -0.75, 1, this.x, this.y, this.st.color + ahex(cellTrans/3*(style.anim ? Math.sin(degToRad(frame_*30+180))+1:1)));
-        fill(-0.75, 0.75, 1, this.x, this.y, this.st.color + ahex(cellTrans/3*(style.anim ? Math.sin(degToRad(frame_*30+180))+1:1)));
-        fill(0.75, 0.75, 0.8, this.x, this.y, this.st.color + ahex(cellTrans/3*(style.anim ? Math.sin(degToRad(frame_*30))+1:1)));
+        fill(-0.75, -0.75, 0.6, this.x, this.y, this.st.color + ahex(cellTrans/3*(style.anim ? Math.sin(degToRad(frame*30))+1:1)));
+        fill(0.75, -0.75, 1, this.x, this.y, this.st.color + ahex(cellTrans/3*(style.anim ? Math.sin(degToRad(frame*30+180))+1:1)));
+        fill(-0.75, 0.75, 1, this.x, this.y, this.st.color + ahex(cellTrans/3*(style.anim ? Math.sin(degToRad(frame*30+180))+1:1)));
+        fill(0.75, 0.75, 0.8, this.x, this.y, this.st.color + ahex(cellTrans/3*(style.anim ? Math.sin(degToRad(frame*30))+1:1)));
       } else {
         if (style.dots) { //отрисовка "следов"
           let cellTrans = this.st.transparent ? 128:255;
@@ -345,8 +346,8 @@ class  Mosquito { //класс "москита"
   }
   render() { //метод отрисовки на холсте
     if (this.alive) {
-      let x_ = style.anim ? Math.cos(degToRad(frame_*30))*style.mosquitosize*1.5:0;
-      let y_ = style.anim ? Math.sin(degToRad(frame_*30))*style.mosquitosize*1.5:0;
+      let x_ = style.anim ? Math.cos(degToRad(frame*30))*style.mosquitosize*1.5:0;
+      let y_ = style.anim ? Math.sin(degToRad(frame*30))*style.mosquitosize*1.5:0;
       let trans = this.st.transparent ? 128:255;
       
       ctx.fillStyle = this.st.color + ahex(trans);
@@ -433,7 +434,7 @@ class Rat { //класс "крысы"
       this.state = state;
       
       this.time = timeNow();
-      this.frame = frame_;
+      this.frame = frame;
       this.st = states[this.state];
       this.infect = this.st.infect ? this.st.infect-1:this.state;
       this.infectable = this.st.prob && this.st.zone;
@@ -444,7 +445,8 @@ class Rat { //класс "крысы"
     if (this.alive) {
       this.alive = false;
       this.time = timeNow();
-      this.frame = frame_;
+      this.frame = frame;
+      this.infectable = false;
       
       //обновление счётчика:
       this.st.count.special--;
@@ -458,7 +460,7 @@ class Rat { //класс "крысы"
         arr[this.id] = new Cell(this.id, this.x, this.y, this.state);
       } //ландшафт "человечья зона"
     
-    if (this.infectable && this.frame !== frame_) { //проверка заражения
+    if (this.infectable && this.frame !== frame) { //проверка заражения
       for (let i = 0; i < arr.length; i++) { //проверка всех клеток
         let p = arr[i];
         if (p.state != this.infect && p.state != this.state && p.alive && p.type != "rat") { //проверка "не мой ли это друг?" и "не крыса ли это?"
@@ -502,16 +504,16 @@ class Rat { //класс "крысы"
         let trans = this.st.transparent ? 128:255;
         ctx.fillStyle = this.st.color + ahex(trans);
         fig(this, 1);
-        if (frame_ < this.frame+5 && style.chanim && this.frame !== false) { //отрисовка перехода в другое состояние
-          let fram = frame_-this.frame;
+        if (frame < this.frame+5 && style.chanim && this.frame !== false) { //отрисовка перехода в другое состояние
+          let fram = frame-this.frame;
           let cellTrans = this.st.transparent ? 128:255;
           let trans = ahex(cellTrans*(5-fram)/10);
           ctx.fillStyle = this.st.color + trans;
           fig(this, 2);
         }
       } else {
-        if (frame_ < this.frame+15 && style.deadanim) { //отрисовка "смерти"
-          let fram = frame_-this.frame;
+        if (frame < this.frame+15 && style.deadanim) { //отрисовка "смерти"
+          let fram = frame-this.frame;
           let size = fram/7.5+1;
           let cellTrans = this.st.transparent ? 128:255;
           let trans = ahex(cellTrans*(15-fram)/15);
@@ -571,7 +573,7 @@ class Ball { //класс "шара"
       this.speed.y += -gravitation.y*10;
       
       this.time = timeNow();
-      this.frame = frame_;
+      this.frame = frame;
       this.st = states[this.state];
       this.infect = this.st.infect ? this.st.infect-1:this.state;
       this.infectable = this.st.prob && this.st.zone;
@@ -582,7 +584,8 @@ class Ball { //класс "шара"
     if (this.alive) {
       this.alive = false;
       this.time = timeNow();
-      this.frame = frame_;
+      this.frame = frame;
+      this.infectable = false;
       
       //обновление счётчика:
       this.st.count.special--;
@@ -596,7 +599,7 @@ class Ball { //класс "шара"
         arr[this.id] = new Cell(this.id, this.x, this.y, this.state);
       } //ландшафт "человечья зона"
     
-    if (this.infectable && this.frame !== frame_) { //проверка заражения
+    if (this.infectable && this.frame !== frame) { //проверка заражения
       for (let i = 0; i < arr.length; i++) { //проверка всех клеток
         let p = arr[i];
         if (p.state != this.infect && p.state != this.state && p.alive) { //проверка "не мой ли это друг?"
@@ -637,16 +640,16 @@ class Ball { //класс "шара"
         let trans = this.st.transparent ? 128:255;
         ctx.fillStyle = this.st.color + ahex(trans);
         fig(this, 1);
-        if (frame_ < this.frame+5 && style.chanim && this.frame !== false) { //отрисовка перехода в другое состояние
-          let fram = frame_-this.frame;
+        if (frame < this.frame+5 && style.chanim && this.frame !== false) { //отрисовка перехода в другое состояние
+          let fram = frame-this.frame;
           let cellTrans = this.st.transparent ? 128:255;
           let trans = ahex(cellTrans*(5-fram)/10);
           ctx.fillStyle = this.st.color + trans;
           fig(this, 2);
         }
       } else {
-        if (frame_ < this.frame+15 && style.deadanim) { //отрисовка "смерти"
-          let fram = frame_-this.frame;
+        if (frame < this.frame+15 && style.deadanim) { //отрисовка "смерти"
+          let fram = frame-this.frame;
           let size = fram/7.5+1;
           let cellTrans = this.st.transparent ? 128:255;
           let trans = ahex(cellTrans*(15-fram)/15);
@@ -666,7 +669,7 @@ class Ball { //класс "шара"
   end() {}  //метод конца обработки (пока не нужен)
 }
 
-function frame() { //метод обработки и отрисовки кадра
+function frame_() { //метод обработки и отрисовки кадра
   if (counter.cells+counter.special > 0 || !options.stop) {
     let FPS = Math.floor(10000/(performance.now()-lastTime))/10;
     let start = performance.now();
@@ -685,10 +688,23 @@ function frame() { //метод обработки и отрисовки кад�
     
     //отрисовка ландшафтов:
     let px = 420/landscape.res;
-    for (let x = 0; x < landscape.res; x++) {
+    for (let x = 0, d = 0; x < landscape.res; x++) {
       for (let y = 0; y < landscape.res; y++) {
-        ctx.fillStyle = lands[landscape.type[x][y]] + ahex(landscape.pow[x][y]*120);
-        ctx.fillRect(X(x*px+15), Y(y*px+15), X(px), Y(px));
+        let type = landscape.type[x][y], pow = landscape.pow[x][y];
+        if (type == 18 && event.dragoned) { //ландшафт "драконья зона"
+          const k = 0.1;
+          let f = event.dragonfire[d];
+          ctx.fillStyle = "#a08000" + ahex(f.now);
+          ctx.fillRect(X(x*px+15), Y(y*px+15), X(px), Y(px));
+          if (!pause && style.anim) { //анимация "огня"
+            if (frame%5 == 0) f.next = random(192)+63;
+            f.now = Math.floor(f.now+(f.next-f.now)*k);
+          }
+          d++;
+        } else {
+          ctx.fillStyle = lands[type] + ahex(pow*120);
+          ctx.fillRect(X(x*px+15), Y(y*px+15), X(px), Y(px));
+        }
       }
     }
     
@@ -708,6 +724,7 @@ function frame() { //метод обработки и отрисовки кад�
         }
       }
       if (event.quared && event.quared < timeNow()) event.quared = false; //событие "карантин"
+      if (event.dragoned && event.dragoned < timeNow()) event.dragoned = false; //событие "гнев драконов"
       
       //свойство "добавка":
       for (let i = 0; i < states.length; i++) {
@@ -773,9 +790,9 @@ function frame() { //метод обработки и отрисовки кад�
     ctx.fillRect(0, 0, X(15), Y(450));
     ctx.fillRect(X(435), 0, X(15), Y(450));
     
-    if (event.splash && event.splash+10 > frame_) { //"всплеск событий"
-      let fram = (frame_-event.splash)/10;
-      ctx.fillStyle = "#ffffff" + ahex(255-(fram*255));
+    if (event.splash && event.splash+10 > frame && style.anim) { //"всплеск событий"
+      let fram = (frame-event.splash)/10;
+      ctx.fillStyle = event.splashcolor + ahex(255-(fram*255));
       ctx.fillRect(X(15), Y(15), X(420), Y(420));
     }
     
@@ -842,7 +859,7 @@ function frame() { //метод обработки и отрисовки кад�
     } else {
       ctx.fillRect(X(850), Y(400), X(10), Y(30));
       ctx.fillRect(X(870), Y(400), X(10), Y(30));
-      frame_++;
+      frame++;
     }
     
     let perf = performance.now()-start;
@@ -885,7 +902,7 @@ function click(e) { //обоаботчик события 'click'
     let fast = { num: 1000/fps };
     let slow = { num: 1000/fps };
     let frames = "";
-    for (let j = 0; j < frame_; j++) {
+    for (let j = 0; j < frame; j++) {
       frames += `\nFRAME ${j} (${flr(j/fps)}s):\n${stats[j].sum} | сумма\n`;
       for (let i = 0; i < counts[j].length; i++) {
         frames += `${counts[j][i]} | ${states[i].name}\n`;
@@ -899,7 +916,7 @@ version = ${version}
 name    = ${strnn(obj.name)}
 json    = ${strnn(json)}
 date    = ${date}
-frames  = ${frame_} (${flr(frame_/fps)}s)
+frames  = ${frame} (${flr(frame/fps)}s)
 fastest = ${flr(fast.num)}ms (frame: ${fast.frame})
 slowest = ${flr(slow.num)}ms (frame: ${slow.frame})
 random  = ${randomed}
@@ -931,7 +948,7 @@ function start() { //метод инициализации
   mosq = [];
   stats = [];
   events = [];
-  frame_ = 0;
+  frame = 0;
   randomed = 0;
   heals = 0;
   counter = { cells: 0, special: 0 };
@@ -942,6 +959,7 @@ function start() { //метод инициализации
   Object.assign(gravitation, options.grav ?? { x: 0, y: 3 });
   event.splash = false;
   event.quared = false;
+  event.dragoned = false;
   
   //заполнение массивов:
   for (let i = 1, j = 0; i < states.length; i++) {
@@ -972,7 +990,7 @@ addEventListener('click', () => { //стартовый клик
   date = Date.now();
   music.loop = true;
   if (options.music) music.play();
-  interval = setInterval(() => { if (performance.now() >= lastTime+fpsTime) frame(); }, 1);
+  interval = setInterval(() => { if (performance.now() >= lastTime+fpsTime) frame_(); }, 1);
   started = true;
   document.addEventListener('click', click);
 }, { once: true });
