@@ -77,7 +77,7 @@
           <button id="speed_2" onclick="window.options.showspeed = 2; $('speedshow').value = 2;" class="speed">x2</button>
           <button id="speed_5" onclick="window.options.showspeed = 5; $('speedshow').value = 5;" class="speed">x5</button>
         </div>
-        <div><input type="checkbox" id="music" onchange="window.options.music = this.checked;" checked>
+        <div><input type="checkbox" id="music" onchange="window.options.music = this.checked; saveSets();" checked>
         <label for="music" class="label">Музыка</label></div>
         <div id="vibratediv" style="display: none;"><input type="checkbox" id="vibrate" onchange="window.options.vibrate = this.checked; saveSets();">
         <label for="vibrate" class="label">Вибрации</label></div>

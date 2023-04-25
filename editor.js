@@ -1,3 +1,4 @@
+const version = "3.6.6";
 const lands = [
   { color: "#ffffff", bcolor: "#d0d0d0", name: "без ландшафта" },
   { color: "#80a000", bcolor: "#709000", name: "отравленная зона" },
@@ -18,7 +19,8 @@ const lands = [
   { color: "#0060a0", bcolor: "#005090", name: "научная зона", ext: "move" },
   { color: "#60c0d0", bcolor: "#50b0c0", name: "леденая зона", ext: "move" },
   { color: "#50a000", bcolor: "#409000", name: "драконья зона", ext: "deads" },
-  { color: "#f0f080", bcolor: "#d0d070", name: "светлая зона", ext: "deads" }
+  { color: "#f0f080", bcolor: "#d0d070", name: "светлая зона", ext: "deads" },
+  { color: "#600000", bcolor: "#500000", name: "военная зона", ext: "deads" }
 ];
 const eventlist = [
   { name: "большой взмес", id: "teleporto", props: [], ext: "move" },
@@ -52,6 +54,9 @@ const eventlist = [
   { name: "ночь", id: "night", props: [
     { id: "pow", text: "сила:", check: [0, 100, false], form: "${num}/100", aform: "${num}*100" }
   ], ext: "deads" },
+  { name: "военные действия", id: "war", props: [
+    { id: "duration", text: "длительность:", check: [0, 120, false], form: "${num}*1000", aform: "${num}/1000" }
+  ], ext: "deads" }
 ];
 const props = [
   { title: "Коэффициент скорости:", type: "num", id: "speed", check: [0, 3, false], default: 1, form: "${num}", aform: "${num}", ext: "move" },
@@ -159,6 +164,7 @@ const extensionlist = [
 - морская зона
 - драконья зона
 - светлая зона
+- военная зона
 
 Свойства:
 - вероятность излечения
@@ -177,6 +183,7 @@ const extensionlist = [
 - гнев драконов
 - наводнение
 - ночь
+- война
 `, color: "#f0d080" }
 ];
 var lastnum = 0, lastev = 0;
@@ -215,6 +222,7 @@ var $ = (id) => document.getElementById(id);
 var lan = $('landscape').getContext('2d');
 var name = "без имени", description = "";
 var landsel;
+for (let i = 0; i < extensionlist.length; i++) extensionlist[i].added = false;
 {
   let saved = JSON.parse(localStorage.getItem("epidemic_simulator_settings"));
   if (navigator.vibrate) {
@@ -225,6 +233,8 @@ var landsel;
     $('vibratediv').style.display= 'block';
   }
   if (saved) {
+    $('music').checked = saved.music;
+    options.music = saved.music;
     $('resshow').innerHTML = `${saved.resolution}р `;
     options.resolution = saved.resolution;
     $('graphmove').checked = saved.graphmove;
@@ -305,8 +315,11 @@ function lssg() {
   localStorage.setItem("epidemic_simulator_savepoint", createJSON());
 }
 function lsog() {
-  $('console').value = "";
-  readgame(localStorage.getItem("epidemic_simulator_savepoint"));
+  let json = localStorage.getItem("epidemic_simulator_savepoint");
+  if (json) {
+    $('console').value = "";
+    readgame(json);
+  }
 }
 function landResCh() {
   if (confirm("При изменении разрешения ландшафт будет сброшен. Изменить? ")) {
@@ -365,6 +378,7 @@ function createJSON(space) {
   let obj = {
     name: name,
     description: description,
+    version: version,
     states: [],
     events: [],
     options: opts,
@@ -699,9 +713,9 @@ function readgame(json) {
             log("Проверка landscape...");
             if (obj.landscape) {
               if (obj.landscape.type && obj.landscape.pow && obj.landscape.res) {
-                log("landscape существует и содержит обязательные поля.");
+                log("landscape существует и содержит обязательные поля");
               } else {
-                log("Ошибка: landscape не содержит обязательные поля.");
+                log("Ошибка: landscape не содержит обязательные поля");
                 return;
               }
             } else {
@@ -738,7 +752,7 @@ function readgame(json) {
             }
             log("Проверка events...");
             if (obj.events) {
-              log("events существует.");
+              log("events существует");
             } else {
               log("events не существует. Замена...");
               obj.events = [];
@@ -822,6 +836,17 @@ function readgame(json) {
             function setval(id, val) {
               $(id).value = val;
               $(id).onchange();
+              if (val != setdef.get(id) && typeof setdef.get(id) != 'undefined') {
+                let ex = $(id).className;
+                if (ex) {
+                  for (let i = 0; i < extensionlist.length; i++) {
+                    if ('ex'+extensionlist[i].id == ex && !exadded(extensionlist[i].id)) {
+                      log(`Загрузка дополнения '${extensionlist[i].id}'...`);
+                      addex(extensionlist[i].id);
+                    }
+                  }
+                }
+              }
             }
             setval('size', obj.options.size);
             setval('count', obj.options.count);
@@ -837,8 +862,9 @@ function readgame(json) {
             setval('ratspeed', obj.options.ratspeed ?? 7);
             setval('ballcount', obj.options.ballcount ?? 0);
             setval('balljump', (obj.options.balljump ?? 0.8)*100);
-            setval('gravx', obj.options.grav.x ?? 0);
-            setval('gravy', obj.options.grav.y ?? 3);
+            obj.options.gravitation = obj.options.gravitation ?? {};
+            setval('gravx', obj.options.gravitation.x ?? 0);
+            setval('gravy', obj.options.gravitation.y ?? 3);
             landscape = {
               type: obj.landscape.type,
               pow: obj.landscape.pow,
@@ -896,6 +922,7 @@ function ahex(a) {
 function saveSets() {
   localStorage.setItem("epidemic_simulator_settings", JSON.stringify({
     vibrate: options.vibrate,
+    music: options.music,
     resolution: options.resolution,
     biggraph: options.biggraph,
     graphmove: options.graphmove

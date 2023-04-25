@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <script>
   window.onload = async function() {
-    let i = new URL(location.href).searchParams.get('play');
+    let p = new URL(location.href).searchParams;
+    let i = p.get('play');
     if (i) {
       let f = await fetch(`examples/example${i}.json`);
       if (f.ok) {
@@ -13,11 +14,13 @@
           if (navigator.vibrate && s.vibrate) r.options.vibrate = s.vibrate;
           else r.options.vibrate = false;
           r.options.resolution = s.resolution;
+          r.options.music = s.music;
           r.options.graphmove = s.graphmove;
           r.options.biggraph = s.biggraph;
         }
-        sessionStorage.setItem('epidemic_simulator_json', JSON.stringify(r));
-        location.href = 'game.html?open=1';
+        let e = p.get('edit');
+        sessionStorage.setItem('epidemic_simulator_'+(e ? 'open':'json'), JSON.stringify(r));
+        location.href = e ? 'index.html':'game.html?open=1';
       }
       else document.write('Ошибка при загрузке примера');
     }

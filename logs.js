@@ -39,7 +39,7 @@ function parse(txt) {
       str += txt[i];
     }
   }
-  if (arr[0] == "EPIDEMIC_SIMULATOR_2_LOGS:") {
+  if (arr[0] == "EPIDEMIC_SIMULATOR_2_LOGS:" || arr[0] == "EPIDEMIC_SIMULATOR_3_LOGS:") {
     res("Начало обработки...");
     let keyval = function(txt) {
       let key = "";
@@ -90,7 +90,9 @@ function parse(txt) {
         ["3.3.13", "22.04.2023"],
         ["3.3.17", "22.04.2023"],
         ["3.4.3", "22.04.2023"],
-        ["3.5.7", "24.04.2023"]
+        ["3.5.7", "24.04.2023"],
+        ["3.6.0", "24.04.2023"],
+        ["3.6.6", "25.04.2023"]
       ]);
       res(`Версия программы: ${props.get('version')} (${versions.get(props.get('version')) ?? "неизвестная"})`);
       res(`Дата: ${new Date(Number(props.get('date')))}`);

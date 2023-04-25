@@ -176,7 +176,8 @@ class Cell { //основной класс
             if (this.st.stopping) p.speedc *= 1-this.st.stopping; //свойство "остановка"
             if (this.infectable) {
               if (rnd() < this.st.prob /* свойство "вероятность" */+(p.st.defect ?? 0 /* свойство "уязвимость" */)+(this.land.type == 5 ? this.land.pow:0 /* ландшафт "зона повышенного заражения */) && (p.st.protect ?? 0 /* свойство "защита" */)-(this.st.spikes ?? 0 /* свойство "шипы" */) < rnd()) { //проверка вероятности заражения
-                if (rnd() < this.st.killer) { //свойство "убийца"
+                let killer = Math.max(this.st.killer, (event.wared && this.land.type == 20) ? this.land.pow:0);
+                if (rnd() < killer) { //свойство "убийца"
                   p.dead();
                 } else {
               	if (!event.quared) {
@@ -725,6 +726,7 @@ function frame_() { //метод обработки и отрисовки кад
       }
       if (event.quared && event.quared < timeNow()) event.quared = false; //событие "карантин"
       if (event.dragoned && event.dragoned < timeNow()) event.dragoned = false; //событие "гнев драконов"
+      if (event.wared && event.wared < timeNow()) event.wared = false; //событие "военные действия"
       
       //свойство "добавка":
       for (let i = 0; i < states.length; i++) {
@@ -911,7 +913,7 @@ function click(e) { //обоаботчик события 'click'
       if (stats[j].perf > slow.num) slow = { num: stats[j].perf, frame: j };
       if (stats[j].perf < fast.num) fast = { num: stats[j].perf, frame: j };
     }
-    let logs = `EPIDEMIC_SIMULATOR_2_LOGS:
+    let logs = `EPIDEMIC_SIMULATOR_3_LOGS:
 version = ${version}
 name    = ${strnn(obj.name)}
 json    = ${strnn(json)}

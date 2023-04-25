@@ -1,4 +1,4 @@
-const version = "3.5.7"; //версия программы
+const version = "3.6.6"; //версия программы
 const fps = 30; //количество кадров в игровой секунде
 const lands = [ //массив цветов ландшафтов
   "#ffffff",
@@ -20,7 +20,8 @@ const lands = [ //массив цветов ландшафтов
   "#0060a0",
   "#60c0d0",
   "#50a000",
-  "#f0f080"
+  "#f0f080",
+  "#600000"
 ];
 
 //получение JSON симуляции:
@@ -404,7 +405,7 @@ event.dragon = function(e) { //событие "гнев драконов"
   event.dragonfire = [];
   for (let y = 0; y < landscape.res; y++) {
     for (let x = 0; x < landscape.res; x++) {
-      event.dragonfire.push({ now: random(255), next: random(255) });
+      event.dragonfire.push({ now: style.anim ? random(255):200, next: random(255) });
     }
   }
 };
@@ -435,4 +436,10 @@ event.night = function(e) { //событие "ночь"
       if (arr[i].type == "cell" && rnd() < e.pow && rnd() >= arr[i].st.antievent && arr[i].st.darkscary && (arr[i].land.type != 19 || arr[i].land.pow <= rnd())) arr[i].dead();
     }
   }
+};
+event.war = function(e) { //событие "военные действия"
+  vib(50);
+  event.splashcolor = "#a00000";
+  event.splash = frame;
+  event.wared = timeNow()+e.duration;
 };
