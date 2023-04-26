@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<meta charset="UTF-8">
 <script>
   window.onload = async function() {
     let p = new URL(location.href).searchParams;
@@ -13,7 +14,7 @@
           let s = JSON.parse(l);
           if (navigator.vibrate && s.vibrate) r.options.vibrate = s.vibrate;
           else r.options.vibrate = false;
-          r.options.resolution = s.resolution;
+          r.style.resolution = s.resolution;
           r.options.music = s.music;
           r.options.graphmove = s.graphmove;
           r.options.biggraph = s.biggraph;

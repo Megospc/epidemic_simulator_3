@@ -816,7 +816,7 @@ function frame_() { //метод обработки и отрисовки кад
       ctx.fillStyle = "#d0d0d0";
       ctx.beginPath();
       ctx.moveTo(X(834), Y(410));
-      ctx.lineTo(X(825), Y(420));
+      ctx.lineTo(X(826), Y(420));
       ctx.lineTo(X(818), Y(410));
       ctx.closePath();
       ctx.fill();
@@ -852,7 +852,7 @@ function frame_() { //метод обработки и отрисовки кад
       for (let i = 0; i < 4; i++) ctx.fillRect(X(725), Y(400+(i*5)), X(25), Y(2));
       for (let i = 0; i < 2; i++) ctx.fillRect(X(730), Y(420+(i*5)), X(20), Y(2));
       ctx.strokeStyle = "#d0d0d0";
-      ctx.lineWidth = 3;
+      ctx.lineWidth = X(2);
       ctx.beginPath();
       ctx.moveTo(X(720), Y(420));
       ctx.lineTo(X(725), Y(425));
@@ -901,8 +901,8 @@ function click(e) { //обоаботчик события 'click'
   }
   if (pause && x > 720 && x < 750 && y > 400) { //кнопка "логи"
     //генерация логов:
-    let fast = { num: 1000/fps };
-    let slow = { num: 1000/fps };
+    let fast = { num: Number.POSITIVE_INFINITY };
+    let slow = { num: 0 };
     let frames = "";
     for (let j = 0; j < frame; j++) {
       frames += `\nFRAME ${j} (${flr(j/fps)}s):\n${stats[j].sum} | сумма\n`;

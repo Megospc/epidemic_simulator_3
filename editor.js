@@ -1,4 +1,4 @@
-const version = "3.6.6";
+const version = "3.7.7";
 const lands = [
   { color: "#ffffff", bcolor: "#d0d0d0", name: "без ландшафта" },
   { color: "#80a000", bcolor: "#709000", name: "отравленная зона" },
@@ -61,7 +61,7 @@ const eventlist = [
 const props = [
   { title: "Коэффициент скорости:", type: "num", id: "speed", check: [0, 3, false], default: 1, form: "${num}", aform: "${num}", ext: "move" },
   { title: "Вероятность излечения(%):", type: "num", id: "heal", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
-  { title: "Трансформация в:", type: "sel", id: "transform", select: "arr = ['случайное']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", default: 1, form: "${num}-1", aform: "${num}+1", ext: "attack" },
+  { title: "Трансформация в:", type: "sel", id: "transform", select: "arr = ['случайное']; for (let i = 0; i < states.length; i++) arr.push(i == n ? 'себя':states[i].name);", default: 1, form: "${num}-1", aform: "${num}+1", ext: "attack" },
   { title: "Заражение в:", type: "sel", id: "infect", select: "arr = ['себя']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}", default: 0, aform: "${num}", ext: "attack" },
   { title: "Паразит (0 = без паразита):", type: "num", id: "parasite", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", exts: "deads" },
   { title: "Инфекция после смерти(с):", type: "num", id: "after", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
@@ -186,6 +186,7 @@ const extensionlist = [
 - война
 `, color: "#f0d080" }
 ];
+const colordeg = 4;
 var lastnum = 0, lastev = 0;
 var states = [];
 var events = [];
@@ -248,7 +249,7 @@ function landsUpdate() {
   for (let i = 0, j = 0; i < lands.length; i++) {
     let p = lands[i];
     if (exadded(p.ext)) {
-      if (j%8 == 0 && j) $('landscapes').innerHTML += "<div></div>";
+      if (j%8 == 0 && j) $('landscapes').innerHTML += '<div style="margin-bottom: 0px;"></div>';
       $('landscapes').innerHTML += `<button class="landscape" id="land${i}" style="background-color: ${p.color}; border: 2px solid ${p.bcolor};" onclick="setLand(${i});"></button>`;
       j++;
     }
@@ -322,7 +323,7 @@ function lsog() {
   }
 }
 function landResCh() {
-  if (confirm("При изменении разрешения ландшафт будет сброшен. Изменить? ")) {
+  if (confirm("При изменении разрешения ландшафт будет сброшен. Изменить?")) {
     landscape.res = Number($('landres').value);
     landscape.type = [];
     landscape.pow = [];
@@ -418,8 +419,39 @@ function newState(name, color) {
   let num = lastnum;
   let div = document.createElement('div');
   let add = "";
+  let colorpal = "";
+  {
+    for (let i = 0; i < colordeg; i++) {
+      let c = 160/colordeg*i;
+      clr(`#a0${ahex(c)}00`, `#90${ahex(c*0.9)}00`);
+    }
+    for (let i = 0; i < colordeg; i++) {
+      let c = 160-(160/colordeg*i);
+      clr(`#${ahex(c)}a000`, `#${ahex(c*0.9)}9000`);
+    }
+    for (let i = 0; i < colordeg; i++) {
+      let c = 160/colordeg*i;
+      clr(`#00a0${ahex(c)}`, `#0090${ahex(c*0.9)}`);
+    }
+    for (let i = 0; i < colordeg; i++) {
+      let c = 160-(160/colordeg*i);
+      clr(`#00${ahex(c)}a0`, `#00${ahex(c*0.9)}90`);
+    }
+    for (let i = 0; i < colordeg; i++) {
+      let c = 160/colordeg*i;
+      clr(`#${ahex(c)}00a0`, `#${ahex(c*0.9)}0090`);
+    }
+    for (let i = 0; i < colordeg; i++) {
+      let c = 160-(160/colordeg*i);
+      clr(`#a000${ahex(c)}`, `#9000${ahex(c*0.9)}`);
+    }
+    function clr(hex, bhex) {
+      colorpal += `<button class="color" style="background-color: ${hex}; border-color: ${bhex};" onclick="$('color${num}').value='${hex}'; updateStates();"></button>\n`;
+    }
+  }
   for (let i = 0; i < props.length; i++) {
     let p = props[i];
+    let n = states.length;
     if (!p.firstno || num != 0) {
       if (p.type == "num") add += `<div id="${p.id+num}div"${exadded(p.ext) ? '':' style="display: none;"'}><label for="${p.id+num}" class="label">${p.title}</label>
       <input type="number" id="${p.id+num}" onchange="updateStates();" value="${p.default}" ${p.default ? "checked":""}></div>`;
@@ -444,20 +476,7 @@ function newState(name, color) {
       <input type="checkbox" id="hiddengraph${num}" onchange="updateStates();" style="display: inline;" ${num == 0 ? "":"checked"}>
     </div>
     <input type="color" id="color${num}" class="colorsel" value="${color}">
-    <button class="color" style="background-color: #a00000; border-color: #900000;" onclick="$('color${num}').value='#a00000'; updateStates();"></button>
-    <button class="color" style="background-color: #a02800; border-color: #902000;" onclick="$('color${num}').value='#a02800'; updateStates();"></button>
-    <button class="color" style="background-color: #a05000; border-color: #904000;" onclick="$('color${num}').value='#a05000'; updateStates();"></button>
-    <button class="color" style="background-color: #a07800; border-color: #907000;" onclick="$('color${num}').value='#a07800'; updateStates();"></button>
-    <button class="color" style="background-color: #a0a000; border-color: #909000;" onclick="$('color${num}').value='#a0a000'; updateStates();"></button>
-    <button class="color" style="background-color: #50a000; border-color: #409000;" onclick="$('color${num}').value='#50a000'; updateStates();"></button>
-    <button class="color" style="background-color: #00a000; border-color: #009000;" onclick="$('color${num}').value='#00a000'; updateStates();"></button>
-    <button class="color" style="background-color: #00a050; border-color: #009040;" onclick="$('color${num}').value='#00a050'; updateStates();"></button>
-    <button class="color" style="background-color: #00a0a0; border-color: #009090;" onclick="$('color${num}').value='#00a0a0'; updateStates();"></button>
-    <button class="color" style="background-color: #0050a0; border-color: #004090;" onclick="$('color${num}').value='#0050a0'; updateStates();"></button>
-    <button class="color" style="background-color: #0000a0; border-color: #000090;" onclick="$('color${num}').value='#0000a0'; updateStates();"></button>
-    <button class="color" style="background-color: #5000a0; border-color: #400090;" onclick="$('color${num}').value='#5000a0'; updateStates();"></button>
-    <button class="color" style="background-color: #a000a0; border-color: #900090;" onclick="$('color${num}').value='#a000a0'; updateStates();"></button>
-    <button class="color" style="background-color: #a00050; border-color: #900040;" onclick="$('color${num}').value='#a00050'; updateStates();"></button>
+    ${colorpal}
     <button class="color" style="background-color: #000000; border-color: #202020;" onclick="$('color${num}').value='#000000'; updateStates();"></button>
     <div><input type="checkbox" id="transparent${num}" onchange="updateStates()">
     <label for="transparent${num}" class="label">Полупрозрачность</label></div>
@@ -532,6 +551,7 @@ function updateState(n) {
     time: Number($(`time${i}`).value)*1000,
     protect: Number($(`protect${i}`).value)/100
   };
+  states[n] = obj;
   for (let j = 0; j < props.length; j++) {
     let p = props[j];
     if (!p.firstno || n != 0) {
@@ -548,7 +568,7 @@ function updateState(n) {
         for (let j = 0; j < arr.length; j++) str += `<option value="${j}">${arr[j]}</option>`;
         str += "</select>";
         $(p.id+i).innerHTML = str;
-        $(p.id+i).value = val;
+        $(p.id+i).value = val >= arr.length ? 0:val;
       }
     }
   }
@@ -556,7 +576,6 @@ function updateState(n) {
   else obj.position = null;
   $(`num${i}`).style.color = obj.color;
   $(`num${i}`).innerHTML = n+1;
-  states[n] = obj;
   let str = "", val = $('healto').value;
   for (let i = 0; i < states.length; i++) str += `<option value="${i}">${states[i].name}</option>`;
   $('healto').innerHTML = str;
@@ -575,8 +594,8 @@ function updateEvent(n) {
     div: events[n].div,
     num: i
   };
-  let e = eventlist[Number($(`event${i}type`).value)];
   events[n] = obj;
+  let e = eventlist[Number($(`event${i}type`).value)];
   $(`event${i}prop0`).style.display = e.props[0] ? 'inline':'none';
   $(`event${i}prop1`).style.display = e.props[1] ? 'inline':'none';
   $(`event${i}prop2`).style.display = e.props[2] ? 'inline':'none';
@@ -762,6 +781,7 @@ function readgame(json) {
             states = [];
             openedadd = [];
             lastnum = 0;
+            let sels = [];
             for (let i = 0; i < obj.states.length; i++) {
               let st = obj.states[i];
               newState(st.name ?? "без имени", st.color ?? "#000000");
@@ -777,7 +797,8 @@ function readgame(json) {
                 let p = props[j];
                 let num = st[p.id];
                 if ((p.type == "num" || p.type == "sel") && (!p.firstno || i != 0)) {
-                  $(`${p.id+i}`).value = eval(`eval(\`${p.aform}\`);`) ?? p.default;
+                  if (p.type == "sel") sels.push({ id: p.id+i, val: eval(`eval(\`${p.aform}\`);`) ?? p.default });
+                  else $(`${p.id+i}`).value = eval(`eval(\`${p.aform}\`);`) ?? p.default;
                   if (eval(`eval(\`${p.aform}\`);`) != p.default && !exadded(p.ext) && typeof num != 'undefined') {
                     log(`Загрузка дополнения '${p.ext}'...`);
                     addex(p.ext);
@@ -798,6 +819,7 @@ function readgame(json) {
               }
               updateState(i);
             }
+            for (let i = 0; i < sels.length; i++) $(sels[i].id).value = sels[i].val;
             $('events').innerHTML = "";
             events = [];
             lastevent = 0;
@@ -1032,7 +1054,7 @@ function exadded(id) {
   for (let i = 0; i < extensionlist.length; i++) {
     let e = extensionlist[i];
     let div = document.createElement('div');
-    let add = localStorage.getItem(`defextensions.${e.id}`);
+    let add = localStorage.getItem(`defextensions.${e.id}`) ? true:false;
     div.innerHTML = `<button class="addex" id="addex:${e.id}" onclick="addex('${e.id}');">+</button>
     <label for="extensions:attack" class="label" id="exlabel:${e.id}" style="color: ${e.color};"><b>${e.name}</b></label>
     <button class="exinfo"><img src="assets/info.svg" height="8" onclick="infex('${e.id}');"></button>
