@@ -1,4 +1,4 @@
-const version = "3.7.7";
+const version = "3.8.3";
 const lands = [
   { color: "#ffffff", bcolor: "#d0d0d0", name: "без ландшафта" },
   { color: "#80a000", bcolor: "#709000", name: "отравленная зона" },
@@ -61,7 +61,7 @@ const eventlist = [
 const props = [
   { title: "Коэффициент скорости:", type: "num", id: "speed", check: [0, 3, false], default: 1, form: "${num}", aform: "${num}", ext: "move" },
   { title: "Вероятность излечения(%):", type: "num", id: "heal", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
-  { title: "Трансформация в:", type: "sel", id: "transform", select: "arr = ['случайное']; for (let i = 0; i < states.length; i++) arr.push(i == n ? 'себя':states[i].name);", default: 1, form: "${num}-1", aform: "${num}+1", ext: "attack" },
+  { title: "Трансформация в:", type: "sel", id: "transform", select: "arr = ['случайное']; for (let i = 0; i < states.length; i++) arr.push(i == n ? 'себя':states[i].name);", default: 0, form: "${num}-1", aform: "${num}+1", ext: "attack" },
   { title: "Заражение в:", type: "sel", id: "infect", select: "arr = ['себя']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}", default: 0, aform: "${num}", ext: "attack" },
   { title: "Паразит (0 = без паразита):", type: "num", id: "parasite", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", exts: "deads" },
   { title: "Инфекция после смерти(с):", type: "num", id: "after", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
@@ -801,6 +801,7 @@ function readgame(json) {
                   else $(`${p.id+i}`).value = eval(`eval(\`${p.aform}\`);`) ?? p.default;
                   if (eval(`eval(\`${p.aform}\`);`) != p.default && !exadded(p.ext) && typeof num != 'undefined') {
                     log(`Загрузка дополнения '${p.ext}'...`);
+                    console.log(p.id, eval(`eval(\`${p.aform}\`);`), p.default)
                     addex(p.ext);
                   }
                 }
@@ -879,7 +880,7 @@ function readgame(json) {
             setval('mosquitoprob', (obj.options.mosquitoprob ?? 0.5)*100);
             setval('mosquitozone', obj.options.mosquitozone ?? 1);
             setval('healzone', obj.options.healzone ?? 30);
-            setval('healto', (obj.options.healto ?? 0)+1);
+            setval('healto', obj.options.healto ?? 0);
             setval('ratcount', obj.options.ratcount ?? 0);
             setval('ratspeed', obj.options.ratspeed ?? 7);
             setval('ballcount', obj.options.ballcount ?? 0);

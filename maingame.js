@@ -858,6 +858,14 @@ function frame_() { //метод обработки и отрисовки кад
       ctx.lineTo(X(725), Y(425));
       ctx.lineTo(X(720), Y(430));
       ctx.stroke();
+      
+      //кнопка "скриншот":
+      ctx.fillRect(X(680), Y(405), X(30), Y(20));
+      ctx.fillRect(X(700), Y(400), X(5), Y(5));
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(X(690), Y(410), X(10), Y(10));
+      ctx.fillStyle = "#d0d0d0";
+      ctx.fillRect(X(693), Y(413), X(4), Y(4));
     } else {
       ctx.fillRect(X(850), Y(400), X(10), Y(30));
       ctx.fillRect(X(870), Y(400), X(10), Y(30));
@@ -927,6 +935,23 @@ ${frames}`;
     sessionStorage.setItem("epidemic_simulator_logs", logs);
     open('logs.html');
   }
+  if (pause && x > 680 && x < 720 && y > 400) { //кнопка "скриншот"
+    let s = document.createElement('canvas');
+    let scr = s.getContext('2d');
+    s.width = canvas.width;
+    s.height = canvas.height;
+    scr.putImageData(ctx.getImageData(0, 0, canvas.width, canvas.height), 0, 0);
+    scr.fillStyle = "#ffffff";
+    scr.fillRect(X(590), Y(400), X(310), Y(50));
+    scr.font = `${X(24)}px Monospace`;
+    scr.fillStyle = "#000000";
+    scr.fillText("Epidemic Simulator 3", X(590), Y(430));
+    let url = s.toDataURL('image/png');
+    let a = document.createElement('a');
+    a.download = `epidemic_simulator_screenshot_${obj.name}.png`;
+    a.href = url;
+    a.click();
+  } 
   if (!pause && options.healzone && y >= 15 && y <= 435 && x >= 15 && x <= 435) { //"излечение кликом"
     vib(30);
     let x_ = (x-15)/420*options.size;
