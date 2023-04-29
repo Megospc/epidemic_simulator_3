@@ -253,8 +253,8 @@ class Cell { //основной класс
   }
   render() { //метод отрисовки на холсте
     if (!this.st.invisible) { //свойство "невидимка"
+      let cellTrans = (this.st.transparent ? 128:255)*(this.land.type == 21 ? 1-this.land.pow:1)*(this.z == 0 ? 1:0.5);
       if (this.alive) {
-        let cellTrans = (this.st.transparent ? 128:255)*(this.land.type == 21 ? 1-this.land.pow:1)*(this.z == 0 ? 1:0.5);
         let f = function(o) {
           ctx.fillStyle = o.st.color + ahex(cellTrans);
           ctx.fillRect(X((o.x-(style.size/2))*scale+15), Y((o.y-(style.size/2))*scale+15), X(style.size*scale), Y(style.size*scale));
