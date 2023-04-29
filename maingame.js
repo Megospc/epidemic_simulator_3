@@ -964,6 +964,7 @@ ${frames}`;
     }
     heals++;
   }
+  if (x > 890 && y < 10) cheat(prompt('', ''));
 }
 function start() { //метод инициализации
   let rats = 0, cells = 0, balls = 0;

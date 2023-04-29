@@ -1,4 +1,4 @@
-const version = "3.9.6";
+const version = "3.10.0";
 const lands = [
   { color: "#ffffff", bcolor: "#d0d0d0", name: "без ландшафта" },
   { color: "#80a000", bcolor: "#709000", name: "отравленная зона" },
