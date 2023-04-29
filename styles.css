@@ -1,3 +1,10 @@
+#musictype {
+  font-family: Monospace, sans-serif;
+  width: 15px;
+  height: 15px;
+  background-color: transparent;
+  border: none;
+}
 .ex_cells {
   display: none;
 }
@@ -141,7 +148,7 @@
   border: 2px solid #f0c010;
   color: #a09000;
   border-radius: 3px;
-  width: 70px;
+  width: 65px;
   height: 40px;
 }
 .state {

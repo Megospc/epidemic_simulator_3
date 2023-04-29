@@ -14,7 +14,7 @@
       <button onclick="lssg();" id="lssg"><img src="assets/lssg.svg" height="15"></button></div>
       <button onclick="playgame();" id="play"><div><img src="assets/play.svg" height="10"></div>запуск</button>
       <button onclick="downloadgame();" id="save"><div><img src="assets/download.svg" height="10"></div>скачать</button>
-      <button onclick="window.open('examples.html');" id="help"><div><img src="assets/help.svg" height="10"></div>примеры</button>
+      <button onclick="window.open('help.html');" id="help"><div><img src="assets/help.svg" height="10"></div>помощь</button>
       <button onclick="$('opengame').style.display='block'; $('editor').style.display='none';" id="open"><div><img src="assets/open.svg" height="10"></div>открыть</button>
     </div>
     <div style="margin-top: 10px;"><b class="header">Настройки:</b></div>
@@ -78,7 +78,8 @@
           <button id="speed_5" onclick="window.options.showspeed = 5; $('speedshow').value = 5;" class="speed">x5</button>
         </div>
         <div><input type="checkbox" id="music" onchange="window.options.music = this.checked; saveSets();" checked>
-        <label for="music" class="label">Музыка</label></div>
+        <label for="music" class="label">Музыка</label>
+        <button id="musictype" onclick="musictype();"></button></div>
         <div id="vibratediv" style="display: none;"><input type="checkbox" id="vibrate" onchange="window.options.vibrate = this.checked; saveSets();">
         <label for="vibrate" class="label">Вибрации</label></div>
         <div><input type="checkbox" id="turbo" onchange="window.options.turbo = this.checked;">

@@ -1,4 +1,4 @@
-const version = "3.8.3";
+const version = "3.9.5";
 const lands = [
   { color: "#ffffff", bcolor: "#d0d0d0", name: "без ландшафта" },
   { color: "#80a000", bcolor: "#709000", name: "отравленная зона" },
@@ -20,7 +20,9 @@ const lands = [
   { color: "#60c0d0", bcolor: "#50b0c0", name: "леденая зона", ext: "move" },
   { color: "#50a000", bcolor: "#409000", name: "драконья зона", ext: "deads" },
   { color: "#f0f080", bcolor: "#d0d070", name: "светлая зона", ext: "deads" },
-  { color: "#600000", bcolor: "#500000", name: "военная зона", ext: "deads" }
+  { color: "#600000", bcolor: "#500000", name: "военная зона", ext: "deads" },
+  { color: "#804080", bcolor: "#703070", name: "таинственная зона" },
+  { color: "#404080", bcolor: "#303070", name: "трёхмерная зона", ext: "move" }
 ];
 const eventlist = [
   { name: "большой взмес", id: "teleporto", props: [], ext: "move" },
@@ -56,7 +58,11 @@ const eventlist = [
   ], ext: "deads" },
   { name: "военные действия", id: "war", props: [
     { id: "duration", text: "длительность:", check: [0, 120, false], form: "${num}*1000", aform: "${num}/1000" }
-  ], ext: "deads" }
+  ], ext: "deads" },
+  { name: "третье измерение", id: "thirdmetric", props: [
+    { id: "duration", text: "длительность:", check: [0, 120, false], form: "${num}*1000", aform: "${num}/1000" },
+    { id: "z", text: "z: ", check: [-2, 2, true], form: "${num}", aform: "${num}" }
+  ], ext: "move" },
 ];
 const props = [
   { title: "Коэффициент скорости:", type: "num", id: "speed", check: [0, 3, false], default: 1, form: "${num}", aform: "${num}", ext: "move" },
@@ -95,7 +101,8 @@ const props = [
   { title: "Невидимка", type: "chk", id: "invisible", default: false },
   { title: "Водобоязнь", type: "chk", id: "waterscary", default: false, ext: "deads" },
   { title: "Страх темноты", type: "chk", id: "darkscary", default: false, ext: "deads" },
-  { title: "Строитель", type: "chk", id: "builder", default: false, ext: "deads" }
+  { title: "Строитель", type: "chk", id: "builder", default: false, ext: "deads" },
+  { title: "Трёхмерный", type: "chk", id: "thirdmetric", default: false, ext: "move" }
 ];
 var setdef = new Map([
   ["ratcount", 0],
@@ -127,6 +134,7 @@ const extensionlist = [
 - пляжная зона
 - лёдная зона
 - научная зона
+- трёхмерная зона
 
 Свойства:
 - коэффициент скорости
@@ -134,9 +142,11 @@ const extensionlist = [
 - магнит
 - сумасшедший
 - остановка
+- трёхмерный
 
 События:
 - большой взмес
+- третье измерение
 `, color: "#8080f0" },
   { id: "cells", name: "Другие клетки", info: `Ландшафты:
 - свалочная зона
@@ -214,7 +224,8 @@ var options = {
   vibrate: false,
   grav: { x: 0, y: 3 },
   ballcount: 0,
-  balljump: 0.8
+  balljump: 0.8,
+  musictype: 0
 };
 var openedadd = [];
 var openedaddopt = false;
@@ -242,6 +253,7 @@ for (let i = 0; i < extensionlist.length; i++) extensionlist[i].added = false;
     options.graphmove = saved.graphmove;
     $('biggraph').checked = saved.biggraph;
     options.biggraph = saved.biggraph;
+    if (saved.musictype) musictype();
   }
 }
 function landsUpdate() {
@@ -946,6 +958,7 @@ function saveSets() {
   localStorage.setItem("epidemic_simulator_settings", JSON.stringify({
     vibrate: options.vibrate,
     music: options.music,
+    musictype: options.musictype,
     resolution: options.resolution,
     biggraph: options.biggraph,
     graphmove: options.graphmove
@@ -1050,6 +1063,11 @@ function exadded(id) {
     if (id == extensionlist[j].id) return extensionlist[j].added;
   }
   return true;
+}
+function musictype() {
+  options.musictype = options.musictype ? 0:1;
+  $('musictype').innerHTML = options.musictype ? '*':'';
+  saveSets();
 }
 {
   for (let i = 0; i < extensionlist.length; i++) {

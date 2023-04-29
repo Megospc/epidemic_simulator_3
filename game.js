@@ -1,4 +1,4 @@
-const version = "3.8.3"; //версия программы
+const version = "3.9.5"; //версия программы
 const fps = 30; //количество кадров в игровой секунде
 const lands = [ //массив цветов ландшафтов
   "#ffffff",
@@ -21,7 +21,9 @@ const lands = [ //массив цветов ландшафтов
   "#60c0d0",
   "#50a000",
   "#f0f080",
-  "#600000"
+  "#600000",
+  "#804080",
+  "#404080"
 ];
 
 //получение JSON симуляции:
@@ -75,7 +77,7 @@ var scale = 420/options.size; //масштаб поля
 var counter = { cells: 0, special: 0 }; //суммарный счётчик
 var started = false, pause = false; //"начата ли симуляция?" и пауза
 var event = {}; //объект событий
-var music = new Audio("assets/music.mp3"); //музыка (от zvukipro.com)
+var music = new Audio(`assets/music${options.musictype ?? 0}.mp3`); //музыка (от zvukipro.com)
 var goalFPS = fps*(options.showspeed ?? 1), fpsTime = 1000/goalFPS, maxFPS = fps; //переменные FPS
 obj.events = obj.events ?? [];
 
@@ -442,4 +444,11 @@ event.war = function(e) { //событие "военные действия"
   event.splashcolor = "#a00000";
   event.splash = frame;
   event.wared = timeNow()+e.duration;
+};
+event.thirdmetric = function(e) { //событие "третье измерение"
+  vib(50);
+  event.splashcolor = "#5050a0";
+  event.splash = frame;
+  event.z = e.z;
+  event.ztime = timeNow()+e.duration;
 };

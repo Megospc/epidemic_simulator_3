@@ -3,6 +3,7 @@ class Cell { //основной класс
     //установка позиции:
     this.x = x ?? random(options.size-style.size)+(style.size/2);
     this.y = y ?? random(options.size-style.size)+(style.size/2);
+    this.z = 0;
     
     this.speed = { x: random(options.speed)-(options.speed/2), y: random(options.speed)-(options.speed/2) }; //установка скорорости
     
@@ -134,6 +135,7 @@ class Cell { //основной класс
       } //"магическая зона"
       if (this.state && this.land.type == 9 && this.land.pow > rnd() && this.st.waterscary) this.dead(); //"морская зона"
       if (this.land.type == 10 && this.land.pow/1000 > rnd()) explosion(); //"взрывоопасная зона"
+      if (this.land.type == 22 && this.land.pow > rnd() && event.ztime) this.z = event.z; //"трёхмерная зона"
       if (this.land.type == 16 && this.land.pow > rnd()) {
         this.teleportated = { st: this.st, x: this.x, y: this.y };
         this.frame = frame;
@@ -171,7 +173,7 @@ class Cell { //основной класс
             p.magnet.y += p.y < this.y ? this.st.magnetpow*c:-this.st.magnetpow*c;
             p.magnet.x += p.x < this.x ? this.st.magnetpow*c:-this.st.magnetpow*c;
           }
-          if (((this.land.type == 3 && this.land.pow > rnd() && p.land.type == 3 && p.type == "cell") /* ландшафт "зона биологической опасности" */ || (this.x-this.st.zone <= p.x && this.x+this.st.zone >= p.x && this.y-this.st.zone <= p.y && this.y+this.st.zone >= p.y)) && ! (this.land.type == 14 && this.land.pow > rnd() && p.land.type == 14 && p.type == "cell") /* ландшафт "зона строгого контроля" */) { //проверка зоны заражения
+          if (((this.land.type == 3 && this.land.pow > rnd() && p.land.type == 3 && p.type == "cell") /* ландшафт "зона биологической опасности" */ || (this.x-this.st.zone <= p.x && this.x+this.st.zone >= p.x && this.y-this.st.zone <= p.y && this.y+this.st.zone >= p.y)) && ! (this.land.type == 14 && this.land.pow > rnd() && p.land.type == 14 && p.type == "cell") /* ландшафт "зона строгого контроля" */ && (this.z == p.z || this.st.thirdmetric)/* третее измерение */) { //проверка зоны заражения
             inzone++;
             if (this.st.stopping) p.speedc *= 1-this.st.stopping; //свойство "остановка"
             if (this.infectable) {
@@ -252,19 +254,18 @@ class Cell { //основной класс
   render() { //метод отрисовки на холсте
     if (!this.st.invisible) { //свойство "невидимка"
       if (this.alive) {
+        let cellTrans = (this.st.transparent ? 128:255)*(this.land.type == 21 ? 1-this.land.pow:1)*(this.z == 0 ? 1:0.5);
         let f = function(o) {
-          let trans = o.st.transparent ? 128:255;
-          ctx.fillStyle = o.st.color + ahex(trans);
+          ctx.fillStyle = o.st.color + ahex(cellTrans);
           ctx.fillRect(X((o.x-(style.size/2))*scale+15), Y((o.y-(style.size/2))*scale+15), X(style.size*scale), Y(style.size*scale));
         };
         if (this.teleportated) { //отрисовка "телепортации"
           if (frame < this.frame+5 && style.anim && this.frame !== false) {
             let fram = frame-this.frame;
-            let cellTrans = this.st.transparent ? 128:255;
             let trans = cellTrans*fram/5;
             ctx.fillStyle = this.st.color + ahex(trans);
             ctx.fillRect(X((this.x-(style.size/2))*scale+15), Y((this.y-(style.size/2))*scale+15), X(style.size*scale), Y(style.size*scale));
-            cellTrans = this.teleportated.st.transparent ? 128:255;
+            cellTrans = (this.teleportated.st.transparent ? 128:255)*(this.land.type == 21 ? 1-this.land.pow:1);
             trans = cellTrans*fram/5;
             ctx.fillStyle = this.teleportated.st.color+ ahex(255-trans);
             ctx.fillRect(X(((this.teleportated.x-(style.size/2)))*scale+15), Y((this.teleportated.y-(style.size/2))*scale+15), X(style.size*scale), Y(style.size*scale));
@@ -272,13 +273,12 @@ class Cell { //основной класс
         } else {
           f(this);
           if (this.magneted && style.anim) { //отрисовка "магнита"
-            let trans = this.st.transparent ? 64:128;
+            let trans = (this.st.transparent ? 64:128)*(this.land.type == 21 ? 1-this.land.pow:1);
             ctx.fillStyle = this.st.color + ahex(trans);
             ctx.fillRect(X((this.x-(style.size))*scale+15), Y((this.y-(style.size))*scale+15), X(style.size*2*scale), Y(style.size*2*scale));
           } else {
             if (frame < this.frame+5 && style.chanim && this.frame !== false) { //отрисовка заражения
               let fram = frame-this.frame;
-              let cellTrans = this.st.transparent ? 128:255;
               let trans = ahex(cellTrans*(5-fram)/10);
               let size = 2*style.size;              
               ctx.fillStyle = this.st.color + trans;
@@ -290,7 +290,6 @@ class Cell { //основной класс
         if (frame < this.frame+15 && style.deadanim) { //отрисовка "смерти"
           let fram = frame-this.frame;
           let size = (fram/7.5+1)*style.size;
-          let cellTrans = this.st.transparent ? 128:255;
           let trans = ahex(cellTrans*(15-fram)/15);
           ctx.fillStyle = this.st.color + trans;
           ctx.fillRect(X((this.x-(size/2))*scale+15), Y((this.y-(size/2))*scale+15), X(size*scale), Y(size*scale));
@@ -300,8 +299,8 @@ class Cell { //основной класс
   }
   first() { //метод пре-отрисовки (для элементов нижнего слоя)
     if (!this.alive) {
+      let cellTrans = (this.st.transparent ? 128:255)*(this.land.type == 21 ? 1-this.land.pow:1)*(this.z == 0 ? 1:0.5);
       if (this.infectable) { //отрисовка "инфекции после смерти"
-        let cellTrans = this.st.transparent ? 128:255;
         let fill = (x, y, s, x_, y_, c) => {
           ctx.fillStyle = c;
           ctx.fillRect(X((x_+(style.size*x))*scale+15), Y((y_+(style.size*y))*scale+15), X(s*style.size*scale), Y(s*style.size*scale));
@@ -312,7 +311,6 @@ class Cell { //основной класс
         fill(0.75, 0.75, 0.8, this.x, this.y, this.st.color + ahex(cellTrans/3*(style.anim ? Math.sin(degToRad(frame*30))+1:1)));
       } else {
         if (style.dots) { //отрисовка "следов"
-          let cellTrans = this.st.transparent ? 128:255;
           ctx.fillStyle = (style.dots.color == "ill" ? this.st.color:style.dots.color) + (style.dots.transparent ? ahex(cellTrans-80):"");
           ctx.fillRect(X(this.x*scale+15-(style.dots.size/2)), Y(this.y*scale+15-(style.dots.size/2)), X(style.dots.size*scale), Y(style.dots.size*scale));
         }
@@ -727,6 +725,7 @@ function frame_() { //метод обработки и отрисовки кад
       if (event.quared && event.quared < timeNow()) event.quared = false; //событие "карантин"
       if (event.dragoned && event.dragoned < timeNow()) event.dragoned = false; //событие "гнев драконов"
       if (event.wared && event.wared < timeNow()) event.wared = false; //событие "военные действия"
+      if (event.ztime && event.ztime < timeNow()) event.ztime = false; //событие "третье измерение"
       
       //свойство "добавка":
       for (let i = 0; i < states.length; i++) {
@@ -987,6 +986,7 @@ function start() { //метод инициализации
   event.splash = false;
   event.quared = false;
   event.dragoned = false;
+  event.ztime = false;
   
   //заполнение массивов:
   for (let i = 1, j = 0; i < states.length; i++) {
