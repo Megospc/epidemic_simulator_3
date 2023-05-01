@@ -1,4 +1,4 @@
-if (localStorage.getItem("epidemic_simulator_source")) document.getElementById('source').value = localStorage.getItem("epidemic_simulator_source");
+if (sessionStorage.getItem("epidemic_simulator_source")) document.getElementById('source').value = sessionStorage.getItem("epidemic_simulator_source");
 function download() {
   let blob = new Blob([get()], { type: "application/json" });
   let link = URL.createObjectURL(blob);

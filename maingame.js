@@ -173,7 +173,7 @@ class Cell { //основной класс
             p.magnet.y += p.y < this.y ? this.st.magnetpow*c:-this.st.magnetpow*c;
             p.magnet.x += p.x < this.x ? this.st.magnetpow*c:-this.st.magnetpow*c;
           }
-          if (((this.land.type == 3 && this.land.pow > rnd() && p.land.type == 3 && p.type == "cell") /* ландшафт "зона биологической опасности" */ || (this.x-this.st.zone <= p.x && this.x+this.st.zone >= p.x && this.y-this.st.zone <= p.y && this.y+this.st.zone >= p.y)) && ! (this.land.type == 14 && this.land.pow > rnd() && p.land.type == 14 && p.type == "cell") /* ландшафт "зона строгого контроля" */ && (this.z == p.z || this.st.thirdmetric)/* третее измерение */) { //проверка зоны заражения
+          if (((this.land.type == 3 && this.land.pow > rnd() && p.land.type == 3 && p.type == "cell") /* ландшафт "зона биологической опасности" */ || (this.x-this.st.zone <= p.x && this.x+this.st.zone >= p.x && this.y-this.st.zone <= p.y && this.y+this.st.zone >= p.y)) && ! (this.land.type == 14 && this.land.pow > rnd() && p.land.type == 14 && p.type == "cell") /* ландшафт "зона строгого контроля" */ && (this.z == p.z || this.st.thirdmetric || p.type != "cell")/* третее измерение */) { //проверка зоны заражения
             inzone++;
             if (this.st.stopping) p.speedc *= 1-this.st.stopping; //свойство "остановка"
             if (this.infectable) {
@@ -761,9 +761,17 @@ function frame_() { //метод обработки и отрисовки кад
       }
     }
     
+    ctx.fillStyle = colors.elements;
+    ctx.fillRect(0, 0, X(450), Y(15));
+    ctx.fillRect(0, Y(435), X(450), Y(15));
+    ctx.fillRect(0, 0, X(15), Y(450));
+    ctx.fillRect(X(435), 0, X(15), Y(450));
+    ctx.fillStyle = colors.back;
+    ctx.fillRect(X(450), 0, X(450), Y(450));
+    
     if (!style.onlygame) { //отрисовка статистики
       ctx.font = `${X(18)}px Monospace`;
-      ctx.fillStyle = "#000000";
+      ctx.fillStyle = colors.text;
       ctx.fillText(`Время: ${flr(timeNow()/1000)}с`, X(490), Y(style.biggraph ? 260:30));
       ctx.fillText(`FPS: ${flr(FPS) + " x" + (options.showspeed ?? 1)}`, X(490), Y(style.biggraph ? 290:60));
       if (!style.biggraph) ctx.fillText("Статистика:", X(490), Y(120));
@@ -785,19 +793,13 @@ function frame_() { //метод обработки и отрисовки кад
       }
     }
     
-    ctx.fillStyle = "#d0d0d0";
-    ctx.fillRect(0, 0, X(450), Y(15));
-    ctx.fillRect(0, Y(435), X(450), Y(15));
-    ctx.fillRect(0, 0, X(15), Y(450));
-    ctx.fillRect(X(435), 0, X(15), Y(450));
-    
     if (event.splash && event.splash+10 > frame && style.anim) { //"всплеск событий"
       let fram = (frame-event.splash)/10;
       ctx.fillStyle = event.splashcolor + ahex(255-(fram*255));
       ctx.fillRect(X(15), Y(15), X(420), Y(420));
     }
     
-    ctx.fillStyle = "#d0d0d0";
+    ctx.fillStyle = colors.elements;
     if (pause) { //отрисовка "паузы"
       //кнопка "продолжить":
       ctx.beginPath();
@@ -809,10 +811,10 @@ function frame_() { //метод обработки и отрисовки кад
       
       //кнопка "заново":
       ctx.fillRect(X(800), Y(400), X(30), Y(30));
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = colors.back;
       ctx.fillRect(X(807), Y(407), X(16), Y(16));
       ctx.fillRect(X(820), Y(415), X(16), Y(20));
-      ctx.fillStyle = "#d0d0d0";
+      ctx.fillStyle = colors.elements;
       ctx.beginPath();
       ctx.moveTo(X(834), Y(410));
       ctx.lineTo(X(826), Y(420));
@@ -850,7 +852,7 @@ function frame_() { //метод обработки и отрисовки кад
       //кнопка "логи":
       for (let i = 0; i < 4; i++) ctx.fillRect(X(725), Y(400+(i*5)), X(25), Y(2));
       for (let i = 0; i < 2; i++) ctx.fillRect(X(730), Y(420+(i*5)), X(20), Y(2));
-      ctx.strokeStyle = "#d0d0d0";
+      ctx.strokeStyle = colors.elements;
       ctx.lineWidth = X(2);
       ctx.beginPath();
       ctx.moveTo(X(720), Y(420));
@@ -861,9 +863,9 @@ function frame_() { //метод обработки и отрисовки кад
       //кнопка "скриншот":
       ctx.fillRect(X(680), Y(405), X(30), Y(20));
       ctx.fillRect(X(700), Y(400), X(5), Y(5));
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = colors.back;
       ctx.fillRect(X(690), Y(410), X(10), Y(10));
-      ctx.fillStyle = "#d0d0d0";
+      ctx.fillStyle = colors.elements;
       ctx.fillRect(X(693), Y(413), X(4), Y(4));
     } else {
       ctx.fillRect(X(850), Y(400), X(10), Y(30));
@@ -875,7 +877,7 @@ function frame_() { //метод обработки и отрисовки кад
     if (!pause) stats.push({ perf: perf, sum: counter.cells+counter.special });
     
     if (!style.onlygame) { //отрисовка статистики
-      ctx.fillStyle = "#000000";
+      ctx.fillStyle = colors.text;
       ctx.font = `${X(18)}px Monospace`;
       ctx.fillText(`Расчёт: ${Math.floor(perf)}мс`, X(490), Y(style.biggraph ? 320:90));
     }
@@ -940,10 +942,10 @@ ${frames}`;
     s.width = canvas.width;
     s.height = canvas.height;
     scr.putImageData(ctx.getImageData(0, 0, canvas.width, canvas.height), 0, 0);
-    scr.fillStyle = "#ffffff";
+    scr.fillStyle = colors.back;
     scr.fillRect(X(590), Y(400), X(310), Y(50));
     scr.font = `${X(24)}px Monospace`;
-    scr.fillStyle = "#000000";
+    scr.fillStyle = colors.text;
     scr.fillText("Epidemic Simulator 3", X(590), Y(430));
     let url = s.toDataURL('image/png');
     let a = document.createElement('a');
@@ -964,7 +966,10 @@ ${frames}`;
     }
     heals++;
   }
-  if (x > 890 && y < 10) cheat(prompt('', ''));
+  if (x > 890 && y < 10) {
+    vib(50);
+    setTimeout(() => cheat(prompt('', '')), 50);
+  }
 }
 function start() { //метод инициализации
   let rats = 0, cells = 0, balls = 0;
@@ -980,6 +985,7 @@ function start() { //метод инициализации
   heals = 0;
   counter = { cells: 0, special: 0 };
   states[0].count = { cells: 0, special: 0 };
+  scale = 420/options.size; 
   for (let i = 0; i < obj.events.length; i++) {
     events[i] = Object.assign({}, obj.events[i]);
   }

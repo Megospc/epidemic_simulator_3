@@ -1,7 +1,7 @@
-const version = "3.10.0"; //версия программы
+const version = "3.11.11"; //версия программы
 const fps = 30; //количество кадров в игровой секунде
 const lands = [ //массив цветов ландшафтов
-  "#ffffff",
+  "#00000000",
   "#80a000",
   "#00a0a0",
   "#a000a0",
@@ -79,7 +79,14 @@ var started = false, pause = false; //"начата ли симуляция?" и
 var event = {}; //объект событий
 var music = new Audio(`assets/music${options.musictype ?? 0}.mp3`); //музыка (от zvukipro.com)
 var goalFPS = fps*(options.showspeed ?? 1), fpsTime = 1000/goalFPS, maxFPS = fps; //переменные FPS
-obj.events = obj.events ?? [];
+var colors = localStorage.getItem("epidemic_simulator_default_theme") ? JSON.parse(localStorage.getItem("epidemic_simulator_default_theme")):{ elements: "#d0d0d0", back: "#ffffff", text: "#000000" }; //основные цвета
+
+//важные переменные:
+obj.events ??= [];
+style.ratsize ??= 5;
+options.ratspeed ??= 7;
+style.ballsize ??= 5;
+options.balljump ??= 0.8;
 
 stats.push({ perf: performance.now(), sum: options.count }); //сохранение первого кадра
 
@@ -135,7 +142,7 @@ function rnd() {
 }
 
 function clear() { //метод очистки холста
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = colors.back;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -196,7 +203,7 @@ function startrender() { //отрисовка изначального окна
   ctx.fillRect(X(500), Y(190), X(20), Y(10));
   ctx.fillRect(X(500), Y(215), X(20), Y(10));
   ctx.fillRect(X(500), Y(240), X(20), Y(10));
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = colors.back;
   ctx.fillRect(X(420), Y(190), X(60), Y(60));
   ctx.fillStyle = "#a0205050";
   ctx.fillRect(X(445), Y(200), X(25), Y(25));
@@ -259,9 +266,9 @@ function biggraph() { //отрисовка большого графика
     }
   }
   ctx.font = `${X(12)}px Monospace`;
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = colors.back;
   ctx.fillRect(X(465), Y(15), X(420), Y(210));
-  ctx.fillStyle = "#d0d0d0";
+  ctx.fillStyle = colors.elements;
   ctx.fillRect(X(500), Y(40), X(360), Y(2));
   ctx.fillText(`${max}`, X(470), Y(45), X(30));
   ctx.fillRect(X(500), Y(120), X(360), Y(2));
@@ -314,7 +321,7 @@ function graph() {
     }
   }
   ctx.font = `${X(9)}px Monospace`;
-  ctx.fillStyle = "#d0d0d0";
+  ctx.fillStyle = colors.elements;
   ctx.fillRect(X(685), Y(20), X(165), Y(1));
   ctx.fillText(`${max}`, X(660), Y(25), X(20));
   ctx.fillRect(X(685), Y(60), X(165), Y(1));
@@ -356,7 +363,7 @@ event.teleporto = function() { //событие "большой взмес"
   event.splashcolor = "#ffffff";
   event.splash = frame;
   for (let i = 0; i < arr.length; i++) {
-    if (rnd() >= arr[i].st.antievent) {
+    if (rnd() >= (arr[i].st.antievent ?? 0)) {
       arr[i].x = random(options.size-style.size)+(style.size/2);
       arr[i].y = random(options.size-style.size)+(style.size/2);
     }
@@ -366,7 +373,7 @@ event.boom = function(e) { //событие "взрыв"
   if (e.pow) {
     vib(50);
     for (let i = 0; i < arr.length; i++) {
-      if (arr[i].type == "cell" && rnd() < e.pow && rnd() >= arr[i].st.antievent) arr[i].dead();
+      if (arr[i].type == "cell" && rnd() < e.pow && rnd() >= (arr[i].st.antievent ?? 0)) arr[i].dead();
     }
   }
 };
@@ -377,7 +384,7 @@ event.rats = function(e) { //событие "крысиный всплеск"
     event.splash = frame;
     for (let i = 0; i < arr.length; i++) {
       if (arr[i].type == "cell" && rnd() <
-e.pow && rnd() >= arr[i].st.antievent) {
+e.pow && rnd() >= (arr[i].st.antievent ?? 0)) {
 	    arr[i].dead();
         arr[i] = new Rat(i, arr[i].x, arr[i].y, arr[i].state);
       }
@@ -392,7 +399,7 @@ event.epidemic = function(e) { //событие "эпидемия"
   if (e.pow) {
     vib(50);
     for (let i = 0; i < arr.length; i++) {
-      if (rnd() < e.pow && rnd() >= arr[i].st.antievent) arr[i].toState(e.state == -1 ? Math.floor(random(states.length)):e.state);
+      if (rnd() < e.pow && rnd() >= (arr[i].st.antievent ?? 0)) arr[i].toState(e.state == -1 ? Math.floor(random(states.length)):e.state);
     }
   }
 };
@@ -417,15 +424,16 @@ event.water = function(e) { //событие "наводнение"
   if (e.pow) {
     vib(50);
     for (let i = 0; i < arr.length; i++) {
-      if (arr[i].type == "cell" && rnd() < e.pow && rnd() >= arr[i].st.antievent && arr[i].st.waterscary) arr[i].dead();
+      if (arr[i].type == "cell" && rnd() < e.pow && rnd() >= (arr[i].st.antievent ?? 0) && arr[i].st.waterscary) arr[i].dead();
     }
   }
 };
 event.healer = function(e) { //событие "лекарство"
   if (e.pow) {
+  	alert(JSON.stringify(e)) 
     vib(50);
     for (let i = 0; i < arr.length; i++) {
-      if (rnd() < e.pow && rnd() >= arr[i].st.antievent && arr[i].state == e.state) arr[i].toState(0);
+      if (rnd() < e.pow && rnd() >= (arr[i].st.antievent ?? 0) && arr[i].state == e.state && arr[i].type == "cell") arr[i].toState(0);
     }
   }
 };
@@ -435,7 +443,7 @@ event.night = function(e) { //событие "ночь"
   if (e.pow) {
     vib(50);
     for (let i = 0; i < arr.length; i++) {
-      if (arr[i].type == "cell" && rnd() < e.pow && rnd() >= arr[i].st.antievent && arr[i].st.darkscary && (arr[i].land.type != 19 || arr[i].land.pow <= rnd())) arr[i].dead();
+      if (arr[i].type == "cell" && rnd() < e.pow && rnd() >= (arr[i].st.antievent ?? 0) && arr[i].st.darkscary && (arr[i].land.type != 19 || arr[i].land.pow <= rnd())) arr[i].dead();
     }
   }
 };
