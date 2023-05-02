@@ -13,7 +13,7 @@ function cheat(str) {
     if (s) keys.push(s);
     let log = alert;
     let res = (a) => log("Результат: " + a);
-    let resBool = (bool) => res(bool ? "истина":"ложь");
+    let resBool = (bool) => res(bool ? "true":"false");
     let warn = (a) => log("Предупреждение: " + a);
     let err = (a) => log("Ошибка: " + a);
     let defined = (a) => typeof a != "undefined";
@@ -112,10 +112,47 @@ function cheat(str) {
               err(`Команда '${keys[1]}' не найдена.`);
           }
           break;
+        case "land":
+          switch (keys[1]) {
+            case "type": {
+                let x = num(2, { up: landscape.res, down: 0, flr: true });
+                let y = num(3, { up: landscape.res, down: 0, flr: true });
+                let type = num(4, { up: lands.length-1, down: 0, flr: true });
+                if (x.ok && y.ok && type.ok) landscape.type[x.n][y.n] = type.n;
+              }
+              break;
+            case "type?": {
+                let x = num(2, { up: landscape.res, down: 0, flr: true });
+                let y = num(3, { up: landscape.res, down: 0, flr: true });
+                if (x.ok && y.ok) res(landscape.type[x.n][y.n]);
+              }
+              break;
+            case "pow": {
+                let x = num(2, { up: landscape.res, down: 0, flr: true });
+                let y = num(3, { up: landscape.res, down: 0, flr: true });
+                let pow = num(4, { up: 1, down: 0 });
+                if (x.ok && y.ok && pow.ok) landscape.pow[x.n][y.n] = pow.n;
+              }
+              break;
+            case "pow?": {
+                let x = num(2, { up: landscape.res, down: 0, flr: true });
+                let y = num(3, { up: landscape.res, down: 0, flr: true });
+                if (x.ok && y.ok) res(landscape.pow[x.n][y.n]);
+              }
+              break;
+            default:
+              err(`Команда '${keys[1]}' не найдена.`);
+          }
+          break;
         case "state":
           n = num(1);
           o = parse(3);
           if (o.ok && n.ok) states[n.n][keys[2]] = o.n;
+          break;
+        case "state?":
+          n = num(1);
+          o = string(2);
+          if (o.ok && n.ok) res(JSON.stringify(states[n.n][o.n]));
           break;
         case "cell":
           o = num(1, { up: arr.length-1, down: 0, flr: true });
@@ -202,9 +239,17 @@ function cheat(str) {
               n = parse(2);
               if (n.ok) colors.back = n.n;
               break;
-            case "elements":
+            case "elements": 
               n = parse(2);
               if (n.ok) colors.elements = n.n;
+              break;
+            case "shadow":
+              n = parse(2);
+              if (n.ok) colors.shadow = n.n;
+              break;
+            case "blur":
+              n = num(2);
+              if (n.ok) colors.blur = n.n;
               break;
             case "text":
               n = parse(2);
@@ -216,35 +261,29 @@ function cheat(str) {
             case "light":
               colors = { back: "#ffffff", elements: "#d0d0d0", text: "#000000" };
               break;
+            case "back?":
+              res(colors.back);
+              break;
+            case "elements?":
+              res(colors.elements);
+              break;
+            case "shadow?":
+              res(colors.shadow);
+              break;
+            case "blur?":
+              res(colors.blur);
+              break;
+            case "text?":
+              res(colors.text);
+              break;
+            case "dark?":
+              res(colors.dark);
+              break;
+            case "light?":
+              res(colors.light);
+              break;
             case "default":
               localStorage.setItem("epidemic_simulator_default_theme", JSON.stringify(colors));
-              break;
-          }
-          break;
-        case "JSON":
-          switch (keys[1]) {
-            case "source?":
-              res(JSON.stringify(obj));
-              break;
-            case "source":
-              if (keys[2] == "edit") {
-                sessionStorage.setItem("epidemic_simulator_source", JSON.stringify(obj, 2));
-                window.open('source.html');
-              } else err(`Команда '${keys[2]}' не найдена.`);
-              break;
-            case "edit":
-              sessionStorage.setItem("epidemic_simulator_open", JSON.stringify(obj));
-              window.open('index.html');
-              break;
-            case "download": {
-                let json = JSON.stringify(obj);
-                let blob = new Blob([json], { type: "application/json" });
-                let url = URL.createObjectURL(blob);
-                let a = document.createElement('a');
-                a.href = url;
-                a.download = `${obj.name}.json`;
-                a.click();
-              }
               break;
             default:
               err(`Команда '${keys[1]}' не найдена.`);
@@ -416,7 +455,7 @@ function cheat(str) {
       if (keys[0] == "cheats") {
         if (keys[1] == "install") {
           cheats = true;
-          log("Чит-коды активированы.");
+          log("Чит-коды активирован. Внимание: любое действие может привести к сбою программы!");
         }
         if (keys[1] == "installed?") resBool(false);
       }

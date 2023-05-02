@@ -701,7 +701,7 @@ function frame_() { //метод обработки и отрисовки кад
           }
           d++;
         } else {
-          ctx.fillStyle = lands[type] + ahex(pow*120);
+          ctx.fillStyle = lands[type] + ahex(type ? pow*120:0);
           ctx.fillRect(X(x*px+15), Y(y*px+15), X(px), Y(px));
         }
       }
@@ -770,6 +770,7 @@ function frame_() { //метод обработки и отрисовки кад
     ctx.fillRect(X(450), 0, X(450), Y(450));
     
     if (!style.onlygame) { //отрисовка статистики
+      ctx.shadowBlur = colors.blur ?? 0;
       ctx.font = `${X(18)}px Monospace`;
       ctx.fillStyle = colors.text;
       ctx.fillText(`Время: ${flr(timeNow()/1000)}с`, X(490), Y(style.biggraph ? 260:30));
@@ -777,17 +778,20 @@ function frame_() { //метод обработки и отрисовки кад
       if (!style.biggraph) ctx.fillText("Статистика:", X(490), Y(120));
       ctx.fillText(`${counter.cells+counter.special}${counter.special > 0 ? ` (${counter.cells})`:""} | сумма`, X(490), Y(style.biggraph ? 350:150));
       sort();
+      ctx.shadowBlur = 0;
       
       ctx.font = `${X(Math.min(Math.floor(9/states.length*18), 18))}px Monospace`;
       
       //отрисовка графиков и статистики
       if (style.biggraph) biggraph();
       else {
+        ctx.shadowBlur = colors.blur ?? 0;
         for (let i = 0; i < sorted.length; i++) { //отрисовка статистики
           let st = sorted[i];
           ctx.fillStyle = st.color + (st.transparent ? "80":"ff");
           ctx.fillText(`${st.count.cells+st.count.special}${st.count.special ? ` (${st.count.cells})`:""} | ${st.name} ${st.invisible? "(невидим)":""}`, X(490), Y(180+(i*Math.min(Math.floor(9/states.length*30), 30))));
         }
+        ctx.shadowBlur = 0;
         
         graph();
       }
@@ -877,6 +881,7 @@ function frame_() { //метод обработки и отрисовки кад
     if (!pause) stats.push({ perf: perf, sum: counter.cells+counter.special });
     
     if (!style.onlygame) { //отрисовка статистики
+      ctx.shadowBlur = colors.blur ?? 0;
       ctx.fillStyle = colors.text;
       ctx.font = `${X(18)}px Monospace`;
       ctx.fillText(`Расчёт: ${Math.floor(perf)}мс`, X(490), Y(style.biggraph ? 320:90));

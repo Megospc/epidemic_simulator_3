@@ -1,4 +1,4 @@
-const version = "3.11.11";
+const version = "3.12.4";
 const lands = [
   { color: "#ffffff", bcolor: "#d0d0d0", name: "без ландшафта" },
   { color: "#80a000", bcolor: "#709000", name: "отравленная зона" },
@@ -22,7 +22,8 @@ const lands = [
   { color: "#f0f080", bcolor: "#d0d070", name: "светлая зона", ext: "deads" },
   { color: "#600000", bcolor: "#500000", name: "военная зона", ext: "deads" },
   { color: "#804080", bcolor: "#703070", name: "таинственная зона" },
-  { color: "#404080", bcolor: "#303070", name: "трёхмерная зона", ext: "move" }
+  { color: "#404080", bcolor: "#303070", name: "трёхмерная зона", ext: "move" },
+  { color: "#007030", bcolor: "#006020", name: "лесная зона", ext: "cells" }
 ];
 const eventlist = [
   { name: "большой взмес", id: "teleporto", props: [], ext: "move" },
@@ -63,6 +64,9 @@ const eventlist = [
     { id: "duration", text: "длительность:", check: [0, 120, false], form: "${num}*1000", aform: "${num}/1000" },
     { id: "z", text: "z: ", check: [-2, 2, true], form: "${num}", aform: "${num}" }
   ], ext: "move" },
+  { name: "выход из леса", id: "forest", props: [
+    { id: "count", text: "количество:", check: [0, 10, false], form: "${num}", aform: "${num}" }
+  ], ext: "cells" }
 ];
 const props = [
   { title: "Коэффициент скорости:", type: "num", id: "speed", check: [0, 3, false], default: 1, form: "${num}", aform: "${num}", ext: "move" },
