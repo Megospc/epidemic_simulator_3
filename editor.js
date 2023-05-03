@@ -1,4 +1,4 @@
-const version = "3.12.4";
+const version = "3.12.12";
 const lands = [
   { color: "#ffffff", bcolor: "#d0d0d0", name: "без ландшафта" },
   { color: "#80a000", bcolor: "#709000", name: "отравленная зона" },
@@ -88,7 +88,7 @@ const props = [
   { title: "Шипы(%):", type: "num", id: "spikes", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
   { title: "Анти-ландшафт(%):", type: "num", id: "antiland", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
   { title: "Анти-событие(%):", type: "num", id: "antievent", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Аллегрия:", type: "num", id: "allergy", check: [0, 'states.length', true], default: 0, form: "${num}-1", aform: "${num}+1" },
+  { title: "Аллегрия:", type: "sel", id: "allergy", select: "arr = ['без аллергии']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", default: 0, form: "${num}-1", aform: "${num}+1" },
   { title: "Контратака(%):", type: "num", id: "cattack", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
   { title: "Дальняя атака(шт.):", type: "num", id: "farinf", check: [0, 5, true], default: 0, form: "${num}", aform: "${num}", ext: "attack" },
   { title: "Сумасшедший(‰):", type: "num", id: "crazy", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "move" },
@@ -592,9 +592,10 @@ function updateState(n) {
   else obj.position = null;
   $(`num${i}`).style.color = obj.color;
   $(`num${i}`).innerHTML = n+1;
-  let str = "", val = $('healto').value;
-  for (let i = 0; i < states.length; i++) str += `<option value="${i}">${states[i].name}</option>`;
+  let str = `<option value="0">убивает</option>`, val = $('healto').value ?? 1;
+  for (let i = 0; i < states.length; i++) str += `<option value="${i+1}">${states[i].name}</option>`;
   $('healto').innerHTML = str;
+  $('healto').value = val;
 }
 function updateStates() {
   for (let i = 0; i < states.length; i++) {
@@ -896,7 +897,7 @@ function readgame(json) {
             setval('mosquitoprob', (obj.options.mosquitoprob ?? 0.5)*100);
             setval('mosquitozone', obj.options.mosquitozone ?? 1);
             setval('healzone', obj.options.healzone ?? 30);
-            setval('healto', obj.options.healto ?? 0);
+            setval('healto', (obj.options.healto ?? 0)+1);
             setval('ratcount', obj.options.ratcount ?? 0);
             setval('ratspeed', obj.options.ratspeed ?? 7);
             setval('ballcount', obj.options.ballcount ?? 0);

@@ -90,7 +90,7 @@ function cheat(str) {
               if (o.ok) options.healzone = o.n;
               break;
             case "to":
-              o = num(2, { up: states.length-1, down: 0, flr: true });
+              o = num(2, { up: states.length-1, down: -1, flr: true });
               if (o.ok) options.healto = o.n;
               break;
             case "all":

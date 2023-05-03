@@ -25,7 +25,6 @@ class Cell { //основной класс
     this.speedc = 1;
     this.type = "cell";
     this.landscape();
-    this.NaN = false;
     
     //обновление счётчика:
     counter.cells++;
@@ -966,7 +965,8 @@ ${frames}`;
     for (let i = 0; i < arr.length; i++) {
       let p = arr[i];
       if (p.y >= y_-zone && p.y <= y_+zone && p.x >= x_-zone && p.x <= x_+zone) {
-        p.toState(options.healto ?? 0);
+        if (options.healto == -1) p.dead();
+        else p.toState(options.healto ?? 0);
       }
     }
     heals++;
