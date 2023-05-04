@@ -1,4 +1,4 @@
-const version = "3.13.0"; //версия программы
+const version = "3.13.1"; //версия программы
 const fps = 30; //количество кадров в игровой секунде
 const lands = [ //массив цветов ландшафтов
   "#000000", //без ландшафта [0]
@@ -433,7 +433,6 @@ event.water = function(e) { //событие "наводнение"
 };
 event.healer = function(e) { //событие "лекарство"
   if (e.pow) {
-  	alert(JSON.stringify(e)) 
     vib(50);
     for (let i = 0; i < arr.length; i++) {
       if (rnd() < e.pow && rnd() >= (arr[i].st.antievent ?? 0) && arr[i].state == e.state && arr[i].type == "cell") arr[i].toState(0);
