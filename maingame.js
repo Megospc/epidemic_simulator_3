@@ -5,7 +5,7 @@ class Cell { //основной класс
     this.y = y ?? random(options.size-style.size)+(style.size/2);
     this.z = 0;
     
-    this.speed = { x: random(options.speed)-(options.speed/2), y: random(options.speed)-(options.speed/2) }; //установка скорорости
+    this.speed = { x: random(options.speed)-(options.speed/2), y: random(options.speed)-(options.speed/2) }; //установка скорости
     
     //инициализация:
     this.state = 0; 
@@ -14,7 +14,7 @@ class Cell { //основной класс
     this.time = timeNow();
     this.st = states[0];
     this.infectable = false;
-    this.frame = this.state ? 0:false;
+    this.frame = 0;
     this.teleportated = false;
     this.magnet = null;
     this.magneted = false;
@@ -172,7 +172,7 @@ class Cell { //основной класс
             p.magnet.y += p.y < this.y ? this.st.magnetpow*c:-this.st.magnetpow*c;
             p.magnet.x += p.x < this.x ? this.st.magnetpow*c:-this.st.magnetpow*c;
           }
-          if (((this.land.type == 3 && this.land.pow > rnd() && p.land.type == 3 && p.type == "cell") /* ландшафт "зона биологической опасности" */ || (this.x-this.st.zone <= p.x && this.x+this.st.zone >= p.x && this.y-this.st.zone <= p.y && this.y+this.st.zone >= p.y)) && ! (this.land.type == 14 && this.land.pow > rnd() && p.land.type == 14 && p.type == "cell") /* ландшафт "зона строгого контроля" */ && (this.z == p.z || this.st.thirdmetric || p.type != "cell")/* третее измерение */) { //проверка зоны заражения
+          if (((this.land.type == 3 && this.land.pow > rnd() && p.land.type == 3 && p.type == "cell") /* ландшафт "зона биологической опасности" */ || (this.x-this.st.zone <= p.x && this.x+this.st.zone >= p.x && this.y-this.st.zone <= p.y && this.y+this.st.zone >= p.y)) && ! (this.land.type == 14 && this.land.pow > rnd() && p.land.type == 14 && p.type == "cell") /* ландшафт "зона строгого контроля" */ && (this.z == p.z || this.st.thirdmetric || p.type != "cell")/* третье измерение */) { //проверка зоны заражения
             inzone++;
             if (this.st.stopping) p.speedc *= 1-this.st.stopping; //свойство "остановка"
             if (this.infectable) {
@@ -716,9 +716,17 @@ function frame_() { //метод обработки и отрисовки кад
       
       for (let i = 0; i < events.length; i++) { //обработка событий
         let e = events[i];
-        if (!e.done && timeNow() > e.time) {
-          event[e.type](e);
-          e.done = true;
+        if (e.time < 0) {
+          let p = -e.time;
+          if (e.done < Math.floor(timeNow()/p)) {
+        	event[e.type](e);
+            e.done = Math.floor(timeNow()/p);
+          }
+        } else {
+          if (!e.done && timeNow() > e.time) {
+            event[e.type](e);
+            e.done = true;
+          }
         }
       }
       if (event.quared && event.quared < timeNow()) event.quared = false; //событие "карантин"
@@ -965,8 +973,17 @@ ${frames}`;
     for (let i = 0; i < arr.length; i++) {
       let p = arr[i];
       if (p.y >= y_-zone && p.y <= y_+zone && p.x >= x_-zone && p.x <= x_+zone) {
-        if (options.healto == -1) p.dead();
-        else p.toState(options.healto ?? 0);
+        if (p.alive) {
+          if (options.healto == -2) {
+            p.teleportated = { x: p.x, y: p.y, st: p.st };
+            p.frame = frame;
+            p.x = random(zone*2)-zone+x_;
+            p.y = random(zone*2)-zone+y_;
+          } else { 
+            if (options.healto == -1) p.dead();
+            else p.toState(options.healto ?? 0);
+          }
+        }
       }
     }
     heals++;
@@ -993,6 +1010,8 @@ function start() { //метод инициализации
   scale = 420/options.size; 
   for (let i = 0; i < obj.events.length; i++) {
     events[i] = Object.assign({}, obj.events[i]);
+    if (events[i].time < 0) events[i].done = 0;
+    else events[i].done = false;
   }
   Object.assign(gravitation, options.grav ?? { x: 0, y: 3 });
   event.splash = false;

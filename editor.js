@@ -1,4 +1,4 @@
-const version = "3.12.12";
+const version = "3.13.0";
 const lands = [
   { color: "#ffffff", bcolor: "#d0d0d0", name: "без ландшафта" },
   { color: "#80a000", bcolor: "#709000", name: "отравленная зона" },
@@ -11,13 +11,13 @@ const lands = [
   { color: "#a00050", bcolor: "#900040", name: "охотничья зона", ext: "cells" },
   { color: "#0040a0", bcolor: "#003090", name: "морская зона", ext: "deads" },
   { color: "#802000", bcolor: "#701000", name: "взрывоопасная зона", ext: "deads" },
-  { color: "#408020", bcolor: "#307010", name: "лагерьная зона", ext: "deads" },
+  { color: "#408020", bcolor: "#307010", name: "лагерная зона", ext: "deads" },
   { color: "#000000", bcolor: "#202020", name: "строительная зона" },
   { color: "#5000a0", bcolor: "#400090", name: "магическая зона", ext: "cells" },
   { color: "#a05000", bcolor: "#a04000", name: "зона строгого конроля" },
   { color: "#a07800", bcolor: "#907000", name: "человеческая зона", ext: "cells" },
   { color: "#0060a0", bcolor: "#005090", name: "научная зона", ext: "move" },
-  { color: "#60c0d0", bcolor: "#50b0c0", name: "леденая зона", ext: "move" },
+  { color: "#60c0d0", bcolor: "#50b0c0", name: "ледяная зона", ext: "move" },
   { color: "#50a000", bcolor: "#409000", name: "драконья зона", ext: "deads" },
   { color: "#f0f080", bcolor: "#d0d070", name: "светлая зона", ext: "deads" },
   { color: "#600000", bcolor: "#500000", name: "военная зона", ext: "deads" },
@@ -26,7 +26,7 @@ const lands = [
   { color: "#007030", bcolor: "#006020", name: "лесная зона", ext: "cells" }
 ];
 const eventlist = [
-  { name: "большой взмес", id: "teleporto", props: [], ext: "move" },
+  { name: "землетрясение", id: "teleporto", props: [], ext: "move" },
   { name: "карантин", id: "quar", props: [
     { id: "duration", text: "длительность:", check: [0, 120, false], form: "${num}*1000", aform: "${num}/1000" }
   ] },
@@ -70,36 +70,36 @@ const eventlist = [
 ];
 const props = [
   { title: "Коэффициент скорости:", type: "num", id: "speed", check: [0, 3, false], default: 1, form: "${num}", aform: "${num}", ext: "move" },
-  { title: "Вероятность излечения(%):", type: "num", id: "heal", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
+  { title: "Вероятность излечения (%):", type: "num", id: "heal", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
   { title: "Трансформация в:", type: "sel", id: "transform", select: "arr = ['случайное']; for (let i = 0; i < states.length; i++) arr.push(i == n ? 'себя':states[i].name);", default: 0, form: "${num}-1", aform: "${num}+1", ext: "attack" },
   { title: "Заражение в:", type: "sel", id: "infect", select: "arr = ['себя']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", form: "${num}", default: 0, aform: "${num}", ext: "attack" },
   { title: "Паразит (0 = без паразита):", type: "num", id: "parasite", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", exts: "deads" },
-  { title: "Инфекция после смерти(с):", type: "num", id: "after", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
-  { title: "Переатака(%):", type: "num", id: "attacktrans", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
-  { title: "Отдых(с):", type: "num", id: "rest", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
-  { title: "Телепорт(пкс.):", type: "num", id: "teleporto", check: [0, 420, false], default: 0, form: "${num}", aform: "${num}", ext: "move" },
-  { title: "Москиты(шт.):", type: "num", id: "mosquito", check: [0, 3, true], default: 0, form: "${num}", aform: "${num}", ext: "cells" },
-  { title: "Убийца(%):", type: "num", id: "killer", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack"},
-  { title: "Зона магнита(пкс.):", type: "num", id: "magnet", check: [0, 420, false], default: 0, form: "${num}", aform: "${num}", ext: "move" },
+  { title: "Инфекция после смерти (с):", type: "num", id: "after", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
+  { title: "Переатака (%):", type: "num", id: "attacktrans", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
+  { title: "Отдых (с):", type: "num", id: "rest", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
+  { title: "Телепорт (пкс.):", type: "num", id: "teleporto", check: [0, 420, false], default: 0, form: "${num}", aform: "${num}", ext: "move" },
+  { title: "Москиты (шт.):", type: "num", id: "mosquito", check: [0, 3, true], default: 0, form: "${num}", aform: "${num}", ext: "cells" },
+  { title: "Убийца (%):", type: "num", id: "killer", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack"},
+  { title: "Зона магнита (пкс.):", type: "num", id: "magnet", check: [0, 420, false], default: 0, form: "${num}", aform: "${num}", ext: "move" },
   { title: "Сила магнита:", type: "num", id: "magnetpow", check: [0, 12, false], default: 0, form: "${num}", aform: "${num}", ext: "move" },
-  { title: "Добавка время(с):", type: "num", id: "addtime", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", firstno: true },
-  { title: "Добавка количество(шт.):", type: "num", id: "addcount", check: [0, 20, true], default: 0, form: "${num}", aform: "${num}", firstno: true },
+  { title: "Добавка - время (с):", type: "num", id: "addtime", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", firstno: true },
+  { title: "Добавка - количество (шт.):", type: "num", id: "addcount", check: [0, 20, true], default: 0, form: "${num}", aform: "${num}", firstno: true },
   { title: "Количество добавок (0 = бесконечно):", type: "num", id: "countadd", check: [0, 50, true], default: 0, form: "${num}", aform: "${num}", firstno: true },
-  { title: "Шипы(%):", type: "num", id: "spikes", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
-  { title: "Анти-ландшафт(%):", type: "num", id: "antiland", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Анти-событие(%):", type: "num", id: "antievent", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
-  { title: "Аллегрия:", type: "sel", id: "allergy", select: "arr = ['без аллергии']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", default: 0, form: "${num}-1", aform: "${num}+1" },
-  { title: "Контратака(%):", type: "num", id: "cattack", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
-  { title: "Дальняя атака(шт.):", type: "num", id: "farinf", check: [0, 5, true], default: 0, form: "${num}", aform: "${num}", ext: "attack" },
-  { title: "Сумасшедший(‰):", type: "num", id: "crazy", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "move" },
-  { title: "Крысы(шт.):", type: "num", id: "ratinit", check: [0, 'options.ratcount-ratsum(n) ', true], default: 0, form: "${num}", aform: "${num}", firstno: true, ext: "cells" },
-  { title: "Шары(шт.):", type: "num", id: "ballinit", check: [0, 'options.ballinit-ballsum(n)', true], default: 0, form: "${num}", aform: "${num}", firstno: true, ext: "cells" },
-  { title: "Воскрешение время(с.):", type: "num", id: "relivetime", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
-  { title: "Воскрешение вероятность(%):", type: "num", id: "reliveprob", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
+  { title: "Шипы (%):", type: "num", id: "spikes", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
+  { title: "Антиландшафт (%):", type: "num", id: "antiland", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
+  { title: "Антисобытие (%):", type: "num", id: "antievent", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100" },
+  { title: "Аллергия:", type: "sel", id: "allergy", select: "arr = ['без аллергии']; for (let i = 0; i < states.length; i++) arr.push(states[i].name);", default: 0, form: "${num}-1", aform: "${num}+1" },
+  { title: "Контратака (%):", type: "num", id: "cattack", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
+  { title: "Дальняя атака (шт.):", type: "num", id: "farinf", check: [0, 5, true], default: 0, form: "${num}", aform: "${num}", ext: "attack" },
+  { title: "Сумасшедший (‰):", type: "num", id: "crazy", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "move" },
+  { title: "Крысы (шт.):", type: "num", id: "ratinit", check: [0, 'options.ratcount-ratsum(n) ', true], default: 0, form: "${num}", aform: "${num}", firstno: true, ext: "cells" },
+  { title: "Шары (шт.):", type: "num", id: "ballinit", check: [0, 'options.ballinit-ballsum(n)', true], default: 0, form: "${num}", aform: "${num}", firstno: true, ext: "cells" },
+  { title: "Воскрешение - время (с.):", type: "num", id: "relivetime", check: [0, 120, false], default: 0, form: "${num}*1000", aform: "${num}/1000", ext: "deads" },
+  { title: "Воскрешение - вероятность(%):", type: "num", id: "reliveprob", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
   { title: "Группа:", type: "num", id: "group", check: [0, 'states.length', true], default: 0, form: "${num}", aform: "${num}", ext: "attack" },
-  { title: "Уязвимость(%):", type: "num", id: "defect", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
-  { title: "Остановка(%):", type: "num", id: "stopping", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "move" },
-  { title: "Ядовитое(%):", type: "num", id: "potion", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
+  { title: "Уязвимость (%):", type: "num", id: "defect", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "attack" },
+  { title: "Остановка (%):", type: "num", id: "stopping", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "move" },
+  { title: "Ядовитое (%):", type: "num", id: "potion", check: [0, 100, false], default: 0, form: "${num}/100", aform: "${num}*100", ext: "deads" },
   { title: "Грабитель", type: "chk", id: "robber", default: false },
   { title: "Все за одного", type: "chk", id: "allone", default: false, ext: "deads" },
   { title: "Невидимка", type: "chk", id: "invisible", default: false },
@@ -149,7 +149,7 @@ const extensionlist = [
 - трёхмерный
 
 События:
-- большой взмес
+- землетрясение
 - третье измерение
 `, color: "#8080f0" },
   { id: "cells", name: "Другие клетки", info: `Ландшафты:
@@ -157,6 +157,7 @@ const extensionlist = [
 - охотничья зона
 - магическая зона
 - человеческая зона
+- лесная зона
 
 Свойства:
 - москиты
@@ -166,6 +167,7 @@ const extensionlist = [
 События:
 - крысиный всплеск
 - смена гравитации
+- выход из леса
 
 Виды клеток:
 - крысы
@@ -197,7 +199,7 @@ const extensionlist = [
 - гнев драконов
 - наводнение
 - ночь
-- война
+- военные действия
 `, color: "#f0d080" }
 ];
 const colordeg = 4;
@@ -496,24 +498,24 @@ function newState(name, color) {
     <button class="color" style="background-color: #000000; border-color: #202020;" onclick="$('color${num}').value='#000000'; updateStates();"></button>
     <div><input type="checkbox" id="transparent${num}" onchange="updateStates()">
     <label for="transparent${num}" class="label">Полупрозрачность</label></div>
-    <div><label for="prob${num}" class="label">Вероятность(%):</label>
+    <div><label for="prob${num}" class="label">Вероятность (%):</label>
     <input type="number" id="prob${num}" onchange="updateStates();" value="0"></div>
-    <div><label for="zone${num}" class="label">Зона(пкс.):</label>
+    <div><label for="zone${num}" class="label">Зона (пкс.):</label>
     <input type="number" id="zone${num}" onchange="updateStates();" value="0"></div>
-    ${num == 0 ? "":`<div><label for="zone${num}" class="label">Начальная попуяция(шт.):</label>
+    ${num == 0 ? "":`<div><label for="zone${num}" class="label">Начальная популяция (шт.):</label>
     <input type="number" id="initial${num}" onchange="if (this.value != 1) $('pos${num}').checked = false; updateStates();" value="0"></div>`}
-    <div><label for="time${num}" class="label">Длина жизни(с) 0 = бесконечно:</label>
+    <div><label for="time${num}" class="label">Длина жизни (с) 0 = бесконечно:</label>
     <input type="number" id="time${num}" onchange="updateStates();" value="0"></div>
-    <div><label for="protect${num}" class="label">Защита(%):</label>
+    <div><label for="protect${num}" class="label">Защита (%):</label>
     <input type="number" id="protect${num}" onchange="updateStates();" value="0"></div>
     <p class="add" onclick="addh(${num});">Дополнительно <img src="assets/down.svg" id="add_${num}" width="12"></p>
     <div id="add${num}" style="display: none;">
       ${add}
       ${num == 0 ? "":`<div><input type="checkbox" id="pos${num}" onchange="updateStates();">
       <label for="pos${num}" class="label">Точная позиция</label></div>
-      <div><label for="x${num}" class="label">Точная позиция(X):</label>
+      <div><label for="x${num}" class="label">Точная позиция (X):</label>
       <input type="number" id="x${num}" onchange="checknum(this, -100, 100, false); updateStates();" value="0"></div>
-      <div><label for="y${num}" class="label">Точная позиция(Y):</label>
+      <div><label for="y${num}" class="label">Точная позиция (Y):</label>
       <input type="number" id="y${num}" onchange="checknum(this, -100, 100, false); updateStates();" value="0"></div>`}
       <div><button onclick="$('extensionsdiv').style.display='block'; $('editor').style.display='none';" class="extensions">дополнения</button></div>
     </div>
@@ -592,10 +594,10 @@ function updateState(n) {
   else obj.position = null;
   $(`num${i}`).style.color = obj.color;
   $(`num${i}`).innerHTML = n+1;
-  let str = `<option value="0">убивает</option>`, val = $('healto').value ?? 1;
-  for (let i = 0; i < states.length; i++) str += `<option value="${i+1}">${states[i].name}</option>`;
+  let str = `<option value="0">перемешивает</option><option value="1">убивает</option>`;
+  for (let i = 0; i < states.length; i++) str += `<option value="${i+2}">${states[i].name}</option>`;
   $('healto').innerHTML = str;
-  $('healto').value = val;
+  $('healto').value = options.healto+2;
 }
 function updateStates() {
   for (let i = 0; i < states.length; i++) {
@@ -604,7 +606,7 @@ function updateStates() {
 }
 function updateEvent(n) {
   let i = events[n].num;
-  checknum($(`event${i}time`), 0, 600, false);
+  checknum($(`event${i}time`), -120, 600, false);
   let obj = {
     type: eventlist[Number($(`event${i}type`).value)].id,
     time: Number($(`event${i}time`).value)*1000,
@@ -897,7 +899,7 @@ function readgame(json) {
             setval('mosquitoprob', (obj.options.mosquitoprob ?? 0.5)*100);
             setval('mosquitozone', obj.options.mosquitozone ?? 1);
             setval('healzone', obj.options.healzone ?? 30);
-            setval('healto', (obj.options.healto ?? 0)+1);
+            setval('healto', (obj.options.healto ?? 0)+2);
             setval('ratcount', obj.options.ratcount ?? 0);
             setval('ratspeed', obj.options.ratspeed ?? 7);
             setval('ballcount', obj.options.ballcount ?? 0);

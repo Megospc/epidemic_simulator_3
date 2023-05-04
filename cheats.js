@@ -210,13 +210,13 @@ function cheat(str) {
           switch (keys[1]) {
             case "pin":
               if (!pinned) {
-                log(`Чит коды закреплены.`);
+                log(`Чит-коды закреплены.`);
                 localStorage.setItem("epidemic_simulator_cheats_pinned", 'true');
               } else warn(`Чит-коды уже закреплены.`);
               break;
             case "unpin":
             	if (pinned) {
-                log(`Чит коды откреплены.`);
+                log(`Чит-коды откреплены.`);
                 localStorage.setItem("epidemic_simulator_cheats_pinned", '');
               } else warn(`Чит-коды ещё не закреплены.`);
               break;
@@ -302,7 +302,7 @@ function cheat(str) {
         case "options":
           o = parse(2);
           if (keys[1] && o.ok) {
-            if (confirm(`Симуляция будет перезапущенна. Продолжить?`)) {
+            if (confirm(`Симуляция будет перезапущена. Продолжить?`)) {
               options[keys[1]] = o.n;
               start();
             }
@@ -311,7 +311,7 @@ function cheat(str) {
         case "style":
           o = parse(2);
           if (keys[1] && o.ok) {
-            if (confirm(`Симуляция будет перезапущенна. Продолжить?`)) {
+            if (confirm(`Симуляция будет перезапущена. Продолжить?`)) {
               style[keys[1]] = o.n;
               start();
             }
@@ -440,7 +440,7 @@ function cheat(str) {
           if (n.ok && typeof event[n.n] == "function") {
             o = object(2);
             if (o.ok) event[n.n](o.n);
-          } else err(`Событие '${keys[1]}' не существует`);
+          } else err(`Событие '${keys[1]}' не найдено.`);
           break;
         case "speed?":
           res(options.showspeed);
@@ -455,7 +455,7 @@ function cheat(str) {
       if (keys[0] == "cheats") {
         if (keys[1] == "install") {
           cheats = true;
-          log("Чит-коды активирован. Внимание: любое действие может привести к сбою программы!");
+          log("Чит-коды активированы. Внимание: любое действие может привести к сбою программы!");
         }
         if (keys[1] == "installed?") resBool(false);
       }

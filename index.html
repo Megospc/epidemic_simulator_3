@@ -48,9 +48,7 @@
       <div><label for="healzone" class="label">Зона излечения кликом:</label>
       <input type="number" id="healzone" value="30" onchange="checknum(this, 0, options.size, false); window.options.healzone = Number(this.value);"></div>
       <div><label for="healto" class="label">Излечение кликом в:</label>
-      <select id="healto" class="pselect" onchange="window.options.healto = Number(this.value)-1;">
-        <option value="1">здоровые</option>
-      </select></div>
+      <select id="healto" class="pselect" onchange="window.options.healto = Number(this.value)-2;"></select></div>
       <div class="ex_cells"><label for="gravx" class="label">Гравитация X:</label>
       <input type="number" id="gravx" class="excells" value="0" onchange="checknum(this, -5, 5, false); window.options.grav.x = Number(this.value);"></div>
       <div class="ex_cells"><label for="gravy" class="label">Гравитация Y:</label>

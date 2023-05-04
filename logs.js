@@ -66,7 +66,7 @@ function parse(txt) {
       }
     }
     if (props.get('version') && props.get('name') && props.get('json') && props.get('date') && props.get('frames')) {
-      res("Общяя информация:");
+      res("Общая информация:");
       const versions = new Map([
         ["2.5.8", "09.03.2023"],
         ["2.5.11", "10.03.2023"],
@@ -100,7 +100,8 @@ function parse(txt) {
         ["3.10.0", "29.04.2023"],
         ["3.11.11", "01.05.2023"],
         ["3.12.4", "02.05.2023"],
-        ["3.12.12", "03.05.2023"]
+        ["3.12.12", "03.05.2023"],
+        ["3.13.0", "04.05.2023"]
       ]);
       res(`Версия программы: ${props.get('version')} (${versions.get(props.get('version')) ?? "неизвестная"})`);
       res(`Дата: ${new Date(Number(props.get('date')))}`);
