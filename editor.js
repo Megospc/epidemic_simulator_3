@@ -1,4 +1,4 @@
-const version = "3.13.1";
+const version = "3.13.7";
 const lands = [
   { color: "#ffffff", bcolor: "#d0d0d0", name: "без ландшафта" },
   { color: "#80a000", bcolor: "#709000", name: "отравленная зона" },
@@ -795,6 +795,32 @@ function readgame(json) {
               log("events не существует. Замена...");
               obj.events = [];
             }
+            log("Проверка версии...");
+            if (obj.version) {
+              let ver = [], s = "";
+              for (let i = 0; i < obj.version.length; i++) {
+                if (obj.version[i] != ".") s += obj.version[i];
+                if (obj.version[i] == "." || i == obj.version.length-1) {
+                  let n = Number(s);
+                  s = "";
+                  if (isNaN(n) && n > 0) {
+                    log("Ошибка: версия некорректна.");
+                    return;
+                  } else ver.push(n);
+                }
+              }
+              if (ver.length == 3) {
+                if (!ver[0] <= 3) {
+                  log("Ошибка: версия фаила выше версии редактора");
+                  log("Попробуйте:");
+                  log(`https://megospc.github.io/epidemic_simulator_${ver[0]}/`);
+                  return;
+                }
+              } else {
+                log("Ошибка: версия некорректна");
+                return;
+              }
+            } else log("Версия неизвестна: может случится ошибка");
             log("Загрузка...");
             $('states').innerHTML = "";
             states = [];
